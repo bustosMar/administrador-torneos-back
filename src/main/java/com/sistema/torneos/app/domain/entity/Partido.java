@@ -40,7 +40,7 @@ public class Partido {
     private OffsetDateTime fechaHora;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "equipo_local_et_id", nullable = false)
+    @JoinColumn(name = "id_equipo_en_torneo", nullable = false)
     @JsonIgnore
     private EquipoEnTorneo equipo;
 

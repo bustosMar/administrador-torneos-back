@@ -35,6 +35,16 @@ public class Jugador {
     @JsonIgnore
     private Equipo equipo;
 
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "foto", columnDefinition = "bytea")
+    private byte[] foto;
+
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "huella", columnDefinition = "bytea")
+    private byte[] huella;
+
     @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<PresenciaPartido> presencias = new HashSet<>();

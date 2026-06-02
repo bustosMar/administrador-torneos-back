@@ -6,6 +6,7 @@ import com.sistema.torneos.app.domain.repository.UsuarioRepository;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsuarioFacade {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsuarioFacade(UsuarioRepository usuarioRepository) {
+    public UsuarioFacade(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<Usuario> findAll() {
@@ -30,6 +33,9 @@ public class UsuarioFacade {
 
     @Transactional
     public Usuario create(Usuario usuario) {
+        if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
+            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        }
         return usuarioRepository.save(usuario);
     }
 
@@ -37,6 +43,9 @@ public class UsuarioFacade {
     public Usuario update(Long id, Usuario usuario) {
         if (usuarioRepository.existsById(id)) {
             usuario.setId(id);
+            if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
+                usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+            }
             return usuarioRepository.save(usuario);
         }
         return null;

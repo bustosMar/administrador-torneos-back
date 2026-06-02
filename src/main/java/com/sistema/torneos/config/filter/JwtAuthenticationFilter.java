@@ -32,6 +32,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
+        setFilterProcessesUrl("/api/auth/login");
     }
 
     @Override
@@ -74,20 +75,22 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .add("isAdmin", isAdmin)
                 .build();
 
+        Date expirationDate = new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 30);
         String jwt = Jwts.builder()
                 .subject(username)
                 .claims(claims)
                 .signWith(SECRET_KEY)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 3600000))
+                .expiration(expirationDate)
                 .compact();
 
         response.addHeader(HEADER_AUTHORIZATION, PREFIX_TOKEN + jwt);
 
-        Map<String, String> body = new HashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("token", jwt);
         body.put("username", username);
-        body.put("message", String.format("Hola %s has iniciado sesion con exito", username));
+        body.put("expiresAt", expirationDate.getTime());
+        body.put("message", String.format("Hola %s has iniciado sesión con éxito", username));
 
         response.getWriter().write(new ObjectMapper().writeValueAsString(body));
         response.setContentType(CONTENT_TYPE);

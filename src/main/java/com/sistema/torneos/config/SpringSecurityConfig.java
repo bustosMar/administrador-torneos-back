@@ -20,7 +20,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import com.sistema.torneos.config.filter.JwtAuthenticationFilter;
 import com.sistema.torneos.config.filter.JwtValidationFilter;
 
 @Configuration
@@ -36,7 +35,7 @@ public class SpringSecurityConfig {
 
     @Bean
     PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new CustomPasswordEncoder();
     }
 
     @Bean
@@ -59,30 +58,30 @@ public class SpringSecurityConfig {
                 .permitAll()
 
                 // Login público
-                .requestMatchers("/login").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
 
-                // Rutas protegidas
+                // Rutas protegidas para usuarios
                 .requestMatchers(HttpMethod.GET,
-                        "/api/users/**")
+                        "/api/usuarios",
+                        "/api/usuarios/**")
                 .hasAnyRole("USER", "ADMIN")
 
                 .requestMatchers(HttpMethod.POST,
-                        "/api/users")
+                        "/api/usuarios")
                 .hasRole("ADMIN")
 
                 .requestMatchers(HttpMethod.PUT,
-                        "/api/users/**")
+                        "/api/usuarios/**")
                 .hasRole("ADMIN")
 
                 .requestMatchers(HttpMethod.DELETE,
-                        "/api/users/**")
+                        "/api/usuarios/**")
                 .hasRole("ADMIN")
 
                 // TEMPORAL: permitir todo lo demás
                 .anyRequest().permitAll()
             )
 
-            .addFilter(new JwtAuthenticationFilter(authenticationManager()))
             .addFilter(new JwtValidationFilter(authenticationManager()));
 
         return http.build();
