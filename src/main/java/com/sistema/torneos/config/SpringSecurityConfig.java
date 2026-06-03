@@ -78,7 +78,7 @@ public class SpringSecurityConfig {
                 .requestMatchers(HttpMethod.GET,
                         "/api/usuarios",
                         "/api/usuarios/**")
-                .hasAnyRole("USER", "ADMIN")
+                .authenticated()
 
                 .requestMatchers(HttpMethod.POST,
                         "/api/usuarios")
