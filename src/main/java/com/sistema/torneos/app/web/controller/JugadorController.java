@@ -26,7 +26,7 @@ public class JugadorController {
     }
 
     @GetMapping("/{id}")
-    public Jugador getById(@PathVariable Long id) {
+    public Jugador getById(@PathVariable("id") Long id) {
         return jugadorService.findById(id);
     }
 
@@ -36,12 +36,12 @@ public class JugadorController {
     }
 
     @PutMapping("/{id}")
-    public Jugador update(@PathVariable Long id, @RequestBody Jugador jugador) {
+    public Jugador update(@PathVariable("id") Long id, @RequestBody Jugador jugador) {
         return jugadorService.update(id, jugador);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         jugadorService.delete(id);
         return ResponseEntity.noContent().build();
     }

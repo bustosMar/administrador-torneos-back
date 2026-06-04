@@ -23,7 +23,7 @@ public class RolController {
     }
 
     @GetMapping("/{id}")
-    public Rol getById(@PathVariable Long id) {
+    public Rol getById(@PathVariable("id") Long id) {
         return service.findById(id);
     }
 
@@ -33,12 +33,12 @@ public class RolController {
     }
 
     @PutMapping("/{id}")
-    public Rol update(@PathVariable Long id, @RequestBody Rol rol) {
+    public Rol update(@PathVariable("id") Long id, @RequestBody Rol rol) {
         return service.update(id, rol);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

@@ -23,7 +23,7 @@ public class PresenciaPartidoController {
     }
 
     @GetMapping("/{id}")
-    public PresenciaPartido getById(@PathVariable Long id) {
+    public PresenciaPartido getById(@PathVariable("id") Long id) {
         return service.findById(id);
     }
 
@@ -33,12 +33,12 @@ public class PresenciaPartidoController {
     }
 
     @PutMapping("/{id}")
-    public PresenciaPartido update(@PathVariable Long id, @RequestBody PresenciaPartido presenciaPartido) {
+    public PresenciaPartido update(@PathVariable("id") Long id, @RequestBody PresenciaPartido presenciaPartido) {
         return service.update(id, presenciaPartido);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

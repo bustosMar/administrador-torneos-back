@@ -23,7 +23,7 @@ public class ArbitroController {
     }
 
     @GetMapping("/{id}")
-    public Arbitro getById(@PathVariable Long id) {
+    public Arbitro getById(@PathVariable("id") Long id) {
         return arbitroService.findById(id);
     }
 
@@ -33,12 +33,12 @@ public class ArbitroController {
     }
 
     @PutMapping("/{id}")
-    public Arbitro update(@PathVariable Long id, @RequestBody Arbitro arbitro) {
+    public Arbitro update(@PathVariable("id") Long id, @RequestBody Arbitro arbitro) {
         return arbitroService.update(id, arbitro);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         arbitroService.delete(id);
         return ResponseEntity.noContent().build();
     }

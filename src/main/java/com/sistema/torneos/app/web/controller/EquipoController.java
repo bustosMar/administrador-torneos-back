@@ -28,7 +28,7 @@ public class EquipoController {
     }
 
     @GetMapping("/{id}")
-    public Equipo getById(@PathVariable Long id) {
+    public Equipo getById(@PathVariable("id") Long id) {
         return equipoService.findById(id);
     }
 
@@ -38,12 +38,12 @@ public class EquipoController {
     }
 
     @PutMapping("/{id}")
-    public Equipo update(@PathVariable Long id, @RequestBody Equipo equipo) {
+    public Equipo update(@PathVariable("id") Long id, @RequestBody Equipo equipo) {
         return equipoService.update(id, equipo);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         equipoService.delete(id);
         return ResponseEntity.noContent().build();
     }

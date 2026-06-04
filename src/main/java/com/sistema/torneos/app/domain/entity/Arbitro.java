@@ -23,6 +23,9 @@ public class Arbitro {
     @Column(nullable = false, length = 200)
     private String nombre;
 
+    @Column(nullable = false, length = 200)
+    private String apellido;
+
     @OneToMany(mappedBy = "arbitro", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Partido> partidos = new HashSet<>();

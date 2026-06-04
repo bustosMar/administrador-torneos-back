@@ -23,7 +23,7 @@ public class SuspensionController {
     }
 
     @GetMapping("/{id}")
-    public Suspension getById(@PathVariable Long id) {
+    public Suspension getById(@PathVariable("id") Long id) {
         return service.findById(id);
     }
 
@@ -33,12 +33,12 @@ public class SuspensionController {
     }
 
     @PutMapping("/{id}")
-    public Suspension update(@PathVariable Long id, @RequestBody Suspension suspension) {
+    public Suspension update(@PathVariable("id") Long id, @RequestBody Suspension suspension) {
         return service.update(id, suspension);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

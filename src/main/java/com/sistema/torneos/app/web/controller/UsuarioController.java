@@ -26,7 +26,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public Usuario getById(@PathVariable Long id) {
+    public Usuario getById(@PathVariable("id") Long id) {
         return usuarioService.findById(id);
     }
 
@@ -36,12 +36,12 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public Usuario update(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public Usuario update(@PathVariable("id") Long id, @RequestBody Usuario usuario) {
         return usuarioService.update(id, usuario);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         usuarioService.delete(id);
         return ResponseEntity.noContent().build();
     }

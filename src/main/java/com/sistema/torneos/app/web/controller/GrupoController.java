@@ -26,7 +26,7 @@ public class GrupoController {
     }
 
     @GetMapping("/{id}")
-    public Grupo getById(@PathVariable Long id) {
+    public Grupo getById(@PathVariable("id") Long id) {
         return grupoService.findById(id);
     }
 
@@ -36,12 +36,12 @@ public class GrupoController {
     }
 
     @PutMapping("/{id}")
-    public Grupo update(@PathVariable Long id, @RequestBody Grupo grupo) {
+    public Grupo update(@PathVariable("id") Long id, @RequestBody Grupo grupo) {
         return grupoService.update(id, grupo);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         grupoService.delete(id);
         return ResponseEntity.noContent().build();
     }

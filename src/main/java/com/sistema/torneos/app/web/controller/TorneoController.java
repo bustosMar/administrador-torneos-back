@@ -26,7 +26,7 @@ public class TorneoController {
     }
 
     @GetMapping("/{id}")
-    public Torneo getById(@PathVariable Long id) {
+    public Torneo getById(@PathVariable("id") Long id) {
         return torneoService.findById(id);
     }
 
@@ -34,14 +34,15 @@ public class TorneoController {
     public ResponseEntity<Torneo> create(@RequestBody Torneo torneo) {
         return ResponseEntity.ok(torneoService.create(torneo));
     }
-
+    
     @PutMapping("/{id}")
-    public Torneo update(@PathVariable Long id, @RequestBody Torneo torneo) {
+    public Torneo update(@PathVariable("id") Long id,
+                         @RequestBody Torneo torneo) {
         return torneoService.update(id, torneo);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         torneoService.delete(id);
         return ResponseEntity.noContent().build();
     }

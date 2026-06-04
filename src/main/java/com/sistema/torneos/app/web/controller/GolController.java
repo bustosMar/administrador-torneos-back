@@ -23,7 +23,7 @@ public class GolController {
     }
 
     @GetMapping("/{id}")
-    public Gol getById(@PathVariable Long id) {
+    public Gol getById(@PathVariable("id") Long id) {
         return service.findById(id);
     }
 
@@ -33,12 +33,12 @@ public class GolController {
     }
 
     @PutMapping("/{id}")
-    public Gol update(@PathVariable Long id, @RequestBody Gol gol) {
+    public Gol update(@PathVariable("id") Long id, @RequestBody Gol gol) {
         return service.update(id, gol);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }

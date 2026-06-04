@@ -26,7 +26,7 @@ public class PartidoController {
     }
 
     @GetMapping("/{id}")
-    public Partido getById(@PathVariable Long id) {
+    public Partido getById(@PathVariable("id") Long id) {
         return partidoService.findById(id);
     }
 
@@ -36,12 +36,12 @@ public class PartidoController {
     }
 
     @PutMapping("/{id}")
-    public Partido update(@PathVariable Long id, @RequestBody Partido partido) {
+    public Partido update(@PathVariable("id") Long id, @RequestBody Partido partido) {
         return partidoService.update(id, partido);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         partidoService.delete(id);
         return ResponseEntity.noContent().build();
     }
