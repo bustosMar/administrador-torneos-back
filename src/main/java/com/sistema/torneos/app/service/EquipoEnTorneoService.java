@@ -2,6 +2,7 @@ package com.sistema.torneos.app.service;
 
 import com.sistema.torneos.app.domain.entity.EquipoEnTorneo;
 import com.sistema.torneos.app.facade.EquipoEnTorneoFacade;
+import com.sistema.torneos.app.web.model.EquipoEnTorneoModel;
 
 import java.util.List;
 
@@ -18,19 +19,19 @@ public class EquipoEnTorneoService {
         this.equipoEnTorneoFacade = equipoEnTorneoFacade;
     }
 
-    public List<EquipoEnTorneo> findAll() {
+    public List<EquipoEnTorneoModel> findAll() {
         return equipoEnTorneoFacade.findAll();
     }
 
-    public EquipoEnTorneo findById(Long id) {
+    public EquipoEnTorneoModel findById(Long id) {
         return equipoEnTorneoFacade.findById(id);
     }
 
-    public EquipoEnTorneo create(EquipoEnTorneo equipoEnTorneo) {
+    public EquipoEnTorneoModel create(EquipoEnTorneoModel equipoEnTorneo) {
         return equipoEnTorneoFacade.create(equipoEnTorneo);
     }
 
-    public EquipoEnTorneo update(Long id, EquipoEnTorneo equipoEnTorneo) {
+    public EquipoEnTorneoModel update(Long id, EquipoEnTorneoModel equipoEnTorneo) {
         return equipoEnTorneoFacade.update(id, equipoEnTorneo);
     }
 

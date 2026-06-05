@@ -8,4 +8,5 @@ public class EquipoModel {
     
     private Long id;
     private String nombre;
+    
 }

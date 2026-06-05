@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,13 +37,21 @@ public class Partido {
     @JsonIgnore
     private Arbitro arbitro;
 
-    @Column(name = "fecha_hora", nullable = false)
-    private OffsetDateTime fechaHora;
+    @Column(name = "fecha", nullable = false)
+    private Date fecha;
+    
+    @Column(name = "hora", nullable = false)
+    private String hora;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_equipo_en_torneo", nullable = false)
+    @JoinColumn(name = "id_equipo_en_torneo_local", nullable = false)
     @JsonIgnore
-    private EquipoEnTorneo equipo;
+    private EquipoEnTorneo equipoLocal;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_equipo_en_torneo_visitante", nullable = false)
+    @JsonIgnore
+    private EquipoEnTorneo equipoVisitante;
 
     @OneToMany(mappedBy = "partido", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

@@ -1,7 +1,9 @@
 package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Equipo;
+import com.sistema.torneos.app.web.model.EquipoModel;
 import com.sistema.torneos.app.domain.repository.EquipoRepository;
+import com.sistema.torneos.app.web.model.mapper.EquipoMapper;
 
 import java.util.List;
 
@@ -18,26 +20,31 @@ public class EquipoFacade {
     @Autowired
     public EquipoFacade(EquipoRepository equipoRepository) {
         this.equipoRepository = equipoRepository;
+        
     }
 
-    public List<Equipo> findAll() {
-        return equipoRepository.findAll();
+    public List<EquipoModel> findAll() {
+    	List<Equipo> equipo = equipoRepository.findAll();
+        return EquipoMapper.INSTANCE.toModel(equipo);
     }
 
-    public Equipo findById(Long id) {
-        return equipoRepository.findById(id).orElse(null);
-    }
-
-    @Transactional
-    public Equipo create(Equipo equipo) {
-        return equipoRepository.save(equipo);
+    public EquipoModel findById(Long id) {
+        return EquipoMapper.INSTANCE.toModel(equipoRepository.findById(id).orElse(null));
     }
 
     @Transactional
-    public Equipo update(Long id, Equipo equipo) {
+    public EquipoModel create(EquipoModel equipo) {
+    	
+    	return EquipoMapper.INSTANCE.toModel(equipoRepository.save(EquipoMapper.INSTANCE.toEntity(equipo)));
+
+    }
+
+    @Transactional
+    public EquipoModel update(Long id, EquipoModel equipoModel) {
         if (equipoRepository.existsById(id)) {
-            equipo.setId(id);
-            return equipoRepository.save(equipo);
+        	Equipo equipo = EquipoMapper.INSTANCE.toEntity(equipoModel);
+        	equipo.setId(id);
+            return EquipoMapper.INSTANCE.toModel(equipoRepository.save(equipo));
         }
         return null;
     }
