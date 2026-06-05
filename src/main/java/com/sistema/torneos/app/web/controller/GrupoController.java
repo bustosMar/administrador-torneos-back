@@ -1,5 +1,6 @@
 package com.sistema.torneos.app.web.controller;
 
+import com.sistema.torneos.app.web.model.GrupoModel;
 import com.sistema.torneos.app.domain.entity.Grupo;
 import com.sistema.torneos.app.service.GrupoService;
 
@@ -21,22 +22,22 @@ public class GrupoController {
     }
 
     @GetMapping
-    public List<Grupo> getAll() {
+    public List<GrupoModel> getAll() {
         return grupoService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Grupo getById(@PathVariable("id") Long id) {
+    public GrupoModel getById(@PathVariable("id") Long id) {
         return grupoService.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Grupo> create(@RequestBody Grupo grupo) {
+    public ResponseEntity<GrupoModel> create(@RequestBody GrupoModel grupo) {
         return ResponseEntity.ok(grupoService.create(grupo));
     }
 
     @PutMapping("/{id}")
-    public Grupo update(@PathVariable("id") Long id, @RequestBody Grupo grupo) {
+    public GrupoModel update(@PathVariable("id") Long id, @RequestBody GrupoModel grupo) {
         return grupoService.update(id, grupo);
     }
 

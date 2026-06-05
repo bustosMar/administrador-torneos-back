@@ -1,7 +1,7 @@
 package com.sistema.torneos.app.service;
 
-import com.sistema.torneos.app.domain.entity.Torneo;
 import com.sistema.torneos.app.facade.TorneoFacade;
+import com.sistema.torneos.app.web.model.TorneoModel;
 
 import java.util.List;
 
@@ -18,19 +18,19 @@ public class TorneoService {
         this.torneoFacade = torneoFacade;
     }
 
-    public List<Torneo> findAll() {
+    public List<TorneoModel> findAll() {
         return torneoFacade.findAll();
     }
 
-    public Torneo findById(Long id) {
+    public TorneoModel findById(Long id) {
         return torneoFacade.findById(id);
     }
 
-    public Torneo create(Torneo torneo) {
+    public TorneoModel create(TorneoModel torneo) {
         return torneoFacade.create(torneo);
     }
 
-    public Torneo update(Long id, Torneo torneo) {
+    public TorneoModel update(Long id, TorneoModel torneo) {
         return torneoFacade.update(id, torneo);
     }
 

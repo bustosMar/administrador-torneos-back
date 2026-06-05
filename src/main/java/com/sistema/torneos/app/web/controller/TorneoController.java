@@ -1,7 +1,8 @@
 package com.sistema.torneos.app.web.controller;
 
-import com.sistema.torneos.app.domain.entity.Torneo;
+
 import com.sistema.torneos.app.service.TorneoService;
+import com.sistema.torneos.app.web.model.TorneoModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,23 +22,23 @@ public class TorneoController {
     }
 
     @GetMapping
-    public List<Torneo> getAll() {
+    public List<TorneoModel> getAll() {
         return torneoService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Torneo getById(@PathVariable("id") Long id) {
+    public TorneoModel getById(@PathVariable("id") Long id) {
         return torneoService.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Torneo> create(@RequestBody Torneo torneo) {
+    public ResponseEntity<TorneoModel> create(@RequestBody TorneoModel torneo) {
         return ResponseEntity.ok(torneoService.create(torneo));
     }
     
     @PutMapping("/{id}")
-    public Torneo update(@PathVariable("id") Long id,
-                         @RequestBody Torneo torneo) {
+    public TorneoModel update(@PathVariable("id") Long id,
+                         @RequestBody TorneoModel torneo) {
         return torneoService.update(id, torneo);
     }
 

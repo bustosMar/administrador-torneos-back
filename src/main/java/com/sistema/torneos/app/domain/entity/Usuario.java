@@ -35,10 +35,6 @@ public class Usuario {
     @Size(min=4, max = 12)
     private String nombreUsuario;
 
-    @Transient
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private boolean administrador;
-
     @NotBlank
     private String password;
 

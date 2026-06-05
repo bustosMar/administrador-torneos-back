@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +37,7 @@ public class EquipoEnTorneo {
     private Grupo grupo;
 
     @Column(name = "creado_en")
-    private OffsetDateTime creadoEn = OffsetDateTime.now();
+    private Date creadoEn = new Date();
 
     @OneToMany(mappedBy = "equipoTorneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

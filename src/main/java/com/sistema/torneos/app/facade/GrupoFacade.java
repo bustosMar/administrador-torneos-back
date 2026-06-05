@@ -2,6 +2,8 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Grupo;
 import com.sistema.torneos.app.domain.repository.GrupoRepository;
+import com.sistema.torneos.app.web.model.GrupoModel;
+import com.sistema.torneos.app.web.model.mapper.GrupoMapper;
 
 import java.util.List;
 
@@ -20,32 +22,43 @@ public class GrupoFacade {
         this.grupoRepository = grupoRepository;
     }
 
-    public List<Grupo> findAll() {
-        return grupoRepository.findAll();
+    public List<GrupoModel> findAll() {
+
+        List<Grupo> grupos = grupoRepository.findAll();
+
+        return GrupoMapper.INSTANCE.toModel(grupos);
     }
 
-    public Grupo findById(Long id) {
-        return grupoRepository.findById(id).orElse(null);
+    public GrupoModel findById(Long id) {
+        
+        return GrupoMapper.INSTANCE.toModel(grupoRepository.findById(id).orElse(null));
     }
 
     @Transactional
-    public Grupo create(Grupo grupo) {
-        return grupoRepository.save(grupo);
+    public GrupoModel create(GrupoModel grupo) {
+
+        return GrupoMapper.INSTANCE.toModel(grupoRepository.save(GrupoMapper.INSTANCE.toEntity(grupo)));
+
     }
 
     @Transactional
-    public Grupo update(Long id, Grupo grupo) {
+    public GrupoModel update(Long id, GrupoModel grupoModel) {
+
         if (grupoRepository.existsById(id)) {
+            Grupo grupo = GrupoMapper.INSTANCE.toEntity(grupoModel);
             grupo.setId(id);
-            return grupoRepository.save(grupo);
+            return GrupoMapper.INSTANCE.toModel(grupoRepository.save(grupo));
         }
+
         return null;
     }
 
     @Transactional
     public void delete(Long id) {
+
         if (grupoRepository.existsById(id)) {
             grupoRepository.deleteById(id);
         }
+        
     }
 }

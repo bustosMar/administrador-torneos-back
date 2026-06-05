@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -49,4 +48,6 @@ public class Torneo {
     @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Partido> partidos = new HashSet<>();
+
+
 }

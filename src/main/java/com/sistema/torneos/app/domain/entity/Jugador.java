@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,11 +24,11 @@ public class Jugador {
     @Column(nullable = false, length = 200)
     private String nombre;
 
-    @Column(name = "fecha_nacimiento")
-    private LocalDate fechaNacimiento;
+    @Column(nullable = false, length = 200)
+    private String apellido;
 
-    @Column(name = "numero_camisa")
-    private Integer numeroCamisa;
+    @Column(name = "fecha_nacimiento")
+    private Date fechaNacimiento;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_equipo")

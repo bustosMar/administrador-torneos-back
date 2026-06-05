@@ -2,6 +2,7 @@ package com.sistema.torneos.app.service;
 
 import com.sistema.torneos.app.domain.entity.Grupo;
 import com.sistema.torneos.app.facade.GrupoFacade;
+import com.sistema.torneos.app.web.model.GrupoModel;
 
 import java.util.List;
 
@@ -18,19 +19,19 @@ public class GrupoService {
         this.grupoFacade = grupoFacade;
     }
 
-    public List<Grupo> findAll() {
+    public List<GrupoModel> findAll() {
         return grupoFacade.findAll();
     }
 
-    public Grupo findById(Long id) {
+    public GrupoModel findById(Long id) {
         return grupoFacade.findById(id);
     }
 
-    public Grupo create(Grupo grupo) {
+    public GrupoModel create(GrupoModel grupo) {
         return grupoFacade.create(grupo);
     }
 
-    public Grupo update(Long id, Grupo grupo) {
+    public GrupoModel update(Long id, GrupoModel grupo) {
         return grupoFacade.update(id, grupo);
     }
 

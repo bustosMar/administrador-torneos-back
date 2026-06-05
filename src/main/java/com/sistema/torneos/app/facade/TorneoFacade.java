@@ -2,6 +2,8 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Torneo;
 import com.sistema.torneos.app.domain.repository.TorneoRepository;
+import com.sistema.torneos.app.web.model.TorneoModel;
+import com.sistema.torneos.app.web.model.mapper.TorneoMapper;
 
 import java.util.List;
 
@@ -20,25 +22,33 @@ public class TorneoFacade {
         this.torneoRepository = torneoRepository;
     }
 
-    public List<Torneo> findAll() {
-        return torneoRepository.findAll();
+    public List<TorneoModel> findAll() {
+    	List<Torneo> torneos = torneoRepository.findAll();
+        return TorneoMapper.INSTANCE.toModel(torneos);
     }
 
-    public Torneo findById(Long id) {
-        return torneoRepository.findById(id).orElse(null);
+    public TorneoModel findById(Long id) {
+    	
+    	return TorneoMapper.INSTANCE.toModel(torneoRepository.findById(id).orElse(null));
+        
     }
 
     @Transactional
-    public Torneo create(Torneo torneo) {
-        return torneoRepository.save(torneo);
+    public TorneoModel create(TorneoModel torneo) {
+    	
+    	return TorneoMapper.INSTANCE.toModel(torneoRepository.save(TorneoMapper.INSTANCE.toEntity(torneo)));
+        
     }
 
     @Transactional
-    public Torneo update(Long id, Torneo torneo) {
+    public TorneoModel update(Long id, TorneoModel torneoModel) {
+    	
         if (torneoRepository.existsById(id)) {
+        	Torneo torneo = TorneoMapper.INSTANCE.toEntity(torneoModel);
             torneo.setId(id);
-            return torneoRepository.save(torneo);
+            return TorneoMapper.INSTANCE.toModel(torneoRepository.save(torneo));
         }
+        
         return null;
     }
 
