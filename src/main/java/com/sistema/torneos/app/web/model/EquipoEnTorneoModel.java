@@ -6,9 +6,15 @@ import lombok.*;
 @Setter
 public class EquipoEnTorneoModel {
    
-    private Long id;
+	private Long id;
+
     private Long equipo;
+    private String equipoNombre;
+
     private Long torneo;
+    private String torneoNombre;
+
     private Long grupo;
+    private String grupoNombre;
     
 }

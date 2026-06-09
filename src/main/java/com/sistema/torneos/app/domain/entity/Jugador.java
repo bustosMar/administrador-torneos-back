@@ -1,5 +1,6 @@
 package com.sistema.torneos.app.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,14 +29,11 @@ public class Jugador {
     private String apellido;
 
     @Column(name = "fecha_nacimiento")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private Date fechaNacimiento;
+    
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_equipo")
-    @JsonIgnore
-    private Equipo equipo;
-
-    @Lob
+   /* @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "foto", columnDefinition = "bytea")
     private byte[] foto;
@@ -43,7 +41,7 @@ public class Jugador {
     @Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "huella", columnDefinition = "bytea")
-    private byte[] huella;
+    private byte[] huella;*/
 
     @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

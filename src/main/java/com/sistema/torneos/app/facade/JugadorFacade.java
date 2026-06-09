@@ -2,6 +2,8 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Jugador;
 import com.sistema.torneos.app.domain.repository.JugadorRepository;
+import com.sistema.torneos.app.web.model.JugadorModel;
+import com.sistema.torneos.app.web.model.mapper.JugadorMapper;
 
 import java.util.List;
 
@@ -20,24 +22,40 @@ public class JugadorFacade {
         this.jugadorRepository = jugadorRepository;
     }
 
-    public List<Jugador> findAll() {
-        return jugadorRepository.findAll();
+    public List<JugadorModel> findAll() {
+    	
+    	 List<Jugador> grupos = jugadorRepository.findAll();
+
+         return JugadorMapper.INSTANCE.toModel(grupos);
     }
 
-    public Jugador findById(Long id) {
-        return jugadorRepository.findById(id).orElse(null);
+    public JugadorModel findById(Long id) {
+        return JugadorMapper.INSTANCE.toModel(jugadorRepository.findById(id).orElse(null));
     }
 
     @Transactional
-    public Jugador create(Jugador jugador) {
-        return jugadorRepository.save(jugador);
+    public JugadorModel create(JugadorModel jugadorModel) {
+    	
+    	Jugador jugador = null;
+    	
+    	jugador = jugadorRepository.findByNombreAndApellidoAndFechaNacimiento(jugadorModel.getNombre(), jugadorModel.getApellido(), jugadorModel.getFechaNacimiento());
+    	
+    	if (jugador!=null) {
+       	    throw new RuntimeException("Ya existe un jugador con esos datos");
+       	}
+    			
+    			
+    	return JugadorMapper.INSTANCE.toModel(jugadorRepository.save(JugadorMapper.INSTANCE.toEntity(jugadorModel)));
+        
     }
 
+
     @Transactional
-    public Jugador update(Long id, Jugador jugador) {
+    public JugadorModel update(Long id, JugadorModel jugadorModel) {
         if (jugadorRepository.existsById(id)) {
-            jugador.setId(id);
-            return jugadorRepository.save(jugador);
+        	 Jugador jugador = JugadorMapper.INSTANCE.toEntity(jugadorModel);
+        	 jugador.setId(id);
+             return JugadorMapper.INSTANCE.toModel(jugadorRepository.save(jugador));
         }
         return null;
     }

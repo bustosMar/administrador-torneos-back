@@ -25,9 +25,5 @@ public class Equipo {
 
     @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<Jugador> jugadores = new HashSet<>();
-
-    @OneToMany(mappedBy = "equipo", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private Set<EquipoEnTorneo> equiposEnTorneo = new HashSet<>();
 }

@@ -1,6 +1,7 @@
 package com.sistema.torneos.app.web.controller;
 
 import com.sistema.torneos.app.web.model.EquipoEnTorneoModel;
+import com.sistema.torneos.app.web.model.response.EquipoEnTorneoResponse;
 import com.sistema.torneos.app.service.EquipoEnTorneoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

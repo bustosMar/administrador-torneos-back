@@ -1,6 +1,6 @@
 package com.sistema.torneos.app.service;
 
-import com.sistema.torneos.app.domain.entity.EquipoEnTorneo;
+
 import com.sistema.torneos.app.facade.EquipoEnTorneoFacade;
 import com.sistema.torneos.app.web.model.EquipoEnTorneoModel;
 

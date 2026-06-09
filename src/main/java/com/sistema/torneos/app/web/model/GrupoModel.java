@@ -8,7 +8,5 @@ public class GrupoModel {
   
 	private Long id;
     private String nombre;
-    private Long torneo;
-
-   
+    
 }

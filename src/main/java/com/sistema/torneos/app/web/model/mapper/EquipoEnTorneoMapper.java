@@ -14,10 +14,15 @@ public interface EquipoEnTorneoMapper extends EntityMapper<EquipoEnTorneoModel, 
 
     @Override
     @Mapping(source = "equipo.id", target = "equipo")
-    @Mapping(source = "torneo.id", target = "torneo")
-    @Mapping(source = "grupo.id", target = "grupo")
-    EquipoEnTorneoModel toModel(EquipoEnTorneo entity);
+    @Mapping(source = "equipo.nombre", target = "equipoNombre")
 
+    @Mapping(source = "torneo.id", target = "torneo")
+    @Mapping(source = "torneo.nombre", target = "torneoNombre")
+
+    @Mapping(source = "grupo.id", target = "grupo")
+    @Mapping(source = "grupo.nombre", target = "grupoNombre")
+    EquipoEnTorneoModel toModel(EquipoEnTorneo entity);
+    
     @Override
     @InheritInverseConfiguration
     @Mapping(source = "equipo", target = "equipo.id")

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sistema.torneos.app.web.model.LoginRequest;
+import com.sistema.torneos.app.web.model.request.LoginRequest;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-package com.sistema.torneos.app.web.model;
+package com.sistema.torneos.app.web.model.request;
 
 import jakarta.validation.constraints.NotBlank;
 

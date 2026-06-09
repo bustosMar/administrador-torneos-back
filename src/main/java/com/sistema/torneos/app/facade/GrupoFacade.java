@@ -35,9 +35,17 @@ public class GrupoFacade {
     }
 
     @Transactional
-    public GrupoModel create(GrupoModel grupo) {
+    public GrupoModel create(GrupoModel grupoModel) {
+    	
+    	Grupo grupo = null;
+    	
+    	grupo = grupoRepository.findByNombre(grupoModel.getNombre());
+    	
+    	if (grupo!=null) {
+    	    throw new RuntimeException("Ya existe un grupo con ese nombre");
+    	}
 
-        return GrupoMapper.INSTANCE.toModel(grupoRepository.save(GrupoMapper.INSTANCE.toEntity(grupo)));
+        return GrupoMapper.INSTANCE.toModel(grupoRepository.save(GrupoMapper.INSTANCE.toEntity(grupoModel)));
 
     }
 
@@ -45,7 +53,8 @@ public class GrupoFacade {
     public GrupoModel update(Long id, GrupoModel grupoModel) {
 
         if (grupoRepository.existsById(id)) {
-            Grupo grupo = GrupoMapper.INSTANCE.toEntity(grupoModel);
+        	
+        	Grupo grupo = GrupoMapper.INSTANCE.toEntity(grupoModel);
             grupo.setId(id);
             return GrupoMapper.INSTANCE.toModel(grupoRepository.save(grupo));
         }

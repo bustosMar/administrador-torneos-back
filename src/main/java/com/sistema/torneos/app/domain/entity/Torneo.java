@@ -39,15 +39,15 @@ public class Torneo {
 
     @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<Grupo> grupos = new HashSet<>();
-
-    @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private Set<EquipoEnTorneo> equiposEnTorneo = new HashSet<>();
 
     @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Partido> partidos = new HashSet<>();
+    
+    @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<EquipoEnTorneo> jugadoresEnquipo = new HashSet<>();
 
 
 }

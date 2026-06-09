@@ -33,15 +33,24 @@ public class EquipoFacade {
     }
 
     @Transactional
-    public EquipoModel create(EquipoModel equipo) {
+    public EquipoModel create(EquipoModel equipoModel) {
     	
-    	return EquipoMapper.INSTANCE.toModel(equipoRepository.save(EquipoMapper.INSTANCE.toEntity(equipo)));
+    	Equipo equipo = null;
+    	
+    	equipo = equipoRepository.findByNombre(equipoModel.getNombre());
+    	
+    	if (equipo!=null) {
+    	    throw new RuntimeException("Ya existe un equipo con ese nombre");
+    	}
+    	
+    	return EquipoMapper.INSTANCE.toModel(equipoRepository.save(EquipoMapper.INSTANCE.toEntity(equipoModel)));
 
     }
 
     @Transactional
     public EquipoModel update(Long id, EquipoModel equipoModel) {
         if (equipoRepository.existsById(id)) {
+        	
         	Equipo equipo = EquipoMapper.INSTANCE.toEntity(equipoModel);
         	equipo.setId(id);
             return EquipoMapper.INSTANCE.toModel(equipoRepository.save(equipo));
