@@ -1,5 +1,6 @@
 package com.sistema.torneos.app.web.controller;
 
+import com.sistema.torneos.app.web.model.ArbitroModel;
 import com.sistema.torneos.app.domain.entity.Arbitro;
 import com.sistema.torneos.app.service.ArbitroService;
 import org.springframework.http.ResponseEntity;
@@ -18,22 +19,22 @@ public class ArbitroController {
     }
 
     @GetMapping
-    public List<Arbitro> getAll() {
+    public List<ArbitroModel> getAll() {
         return arbitroService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Arbitro getById(@PathVariable("id") Long id) {
+    public ArbitroModel getById(@PathVariable("id") Long id) {
         return arbitroService.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Arbitro> create(@RequestBody Arbitro arbitro) {
+    public ResponseEntity<ArbitroModel> create(@RequestBody ArbitroModel arbitro) {
         return ResponseEntity.ok(arbitroService.create(arbitro));
     }
 
     @PutMapping("/{id}")
-    public Arbitro update(@PathVariable("id") Long id, @RequestBody Arbitro arbitro) {
+    public ArbitroModel update(@PathVariable("id") Long id, @RequestBody ArbitroModel arbitro) {
         return arbitroService.update(id, arbitro);
     }
 

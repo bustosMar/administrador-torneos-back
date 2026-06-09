@@ -1,6 +1,6 @@
 package com.sistema.torneos.app.service;
 
-import com.sistema.torneos.app.domain.entity.Arbitro;
+import com.sistema.torneos.app.web.model.ArbitroModel;
 import com.sistema.torneos.app.facade.ArbitroFacade;
 
 import java.util.List;
@@ -18,19 +18,19 @@ public class ArbitroService {
         this.arbitroFacade = arbitroFacade;
     }
 
-    public List<Arbitro> findAll() {
+    public List<ArbitroModel> findAll() {
         return arbitroFacade.findAll();
     }
 
-    public Arbitro findById(Long id) {
+    public ArbitroModel findById(Long id) {
         return arbitroFacade.findById(id);
     }
 
-    public Arbitro create(Arbitro arbitro) {
+    public ArbitroModel create(ArbitroModel arbitro) {
         return arbitroFacade.create(arbitro);
     }
 
-    public Arbitro update(Long id, Arbitro arbitro) {
+    public ArbitroModel update(Long id, ArbitroModel arbitro) {
         return arbitroFacade.update(id, arbitro);
     }
 

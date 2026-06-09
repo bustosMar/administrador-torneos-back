@@ -2,6 +2,9 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Usuario;
 import com.sistema.torneos.app.domain.repository.UsuarioRepository;
+import com.sistema.torneos.app.web.model.UsuarioModel;
+import com.sistema.torneos.app.web.model.mapper.ArbitroMapper;
+import com.sistema.torneos.app.web.model.mapper.UsuarioMapper;
 
 import java.util.List;
 
@@ -23,30 +26,43 @@ public class UsuarioFacade {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<Usuario> findAll() {
-        return usuarioRepository.findAll();
+    public List<UsuarioModel> findAll() {
+    	
+    	List<Usuario> usuarios = usuarioRepository.findAll();
+    	
+    	return UsuarioMapper.INSTANCE.toModel(usuarios);
     }
 
-    public Usuario findById(Long id) {
-        return usuarioRepository.findById(id).orElse(null);
+    public UsuarioModel findById(Long id) {
+    	 return UsuarioMapper.INSTANCE.toModel(usuarioRepository.findById(id).orElse(null));
     }
 
     @Transactional
-    public Usuario create(Usuario usuario) {
-        if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
-            usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+    public UsuarioModel create(UsuarioModel usuarioModel) {
+    	
+    	Usuario usuario = null;
+    	
+    	usuario = usuarioRepository.findByNombreAndApellidoAndNombreUsuario(usuario.getNombre(), usuario.getApellido(), usuario.getNombreUsuario());
+    	
+    	if (usuario!=null) {
+    	    throw new RuntimeException("Ya existe un arbitro con estos datos");
+    	}
+    	
+        if (usuarioModel.getPassword() != null && !usuarioModel.getPassword().isBlank()) {
+        	usuarioModel.setPassword(passwordEncoder.encode(usuarioModel.getPassword()));
         }
-        return usuarioRepository.save(usuario);
+        
+        return UsuarioMapper.INSTANCE.toModel(usuarioRepository.save(UsuarioMapper.INSTANCE.toEntity(usuarioModel)));
     }
 
     @Transactional
-    public Usuario update(Long id, Usuario usuario) {
+    public UsuarioModel update(Long id, UsuarioModel usuario) {
         if (usuarioRepository.existsById(id)) {
             usuario.setId(id);
             if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
                 usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
             }
-            return usuarioRepository.save(usuario);
+            return UsuarioMapper.INSTANCE.toModel(usuarioRepository.save(UsuarioMapper.INSTANCE.toEntity(usuario)));
         }
         return null;
     }

@@ -1,7 +1,7 @@
 package com.sistema.torneos.app.service;
 
-import com.sistema.torneos.app.domain.entity.Usuario;
 import com.sistema.torneos.app.facade.UsuarioFacade;
+import com.sistema.torneos.app.web.model.UsuarioModel;
 
 import java.util.List;
 
@@ -18,19 +18,19 @@ public class UsuarioService {
         this.usuarioFacade = usuarioFacade;
     }
 
-    public List<Usuario> findAll() {
+    public List<UsuarioModel> findAll() {
         return usuarioFacade.findAll();
     }
 
-    public Usuario findById(Long id) {
+    public UsuarioModel findById(Long id) {
         return usuarioFacade.findById(id);
     }
 
-    public Usuario create(Usuario usuario) {
+    public UsuarioModel create(UsuarioModel usuario) {
         return usuarioFacade.create(usuario);
     }
 
-    public Usuario update(Long id, Usuario usuario) {
+    public UsuarioModel update(Long id, UsuarioModel usuario) {
         return usuarioFacade.update(id, usuario);
     }
 

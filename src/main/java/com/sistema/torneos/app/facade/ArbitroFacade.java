@@ -2,6 +2,9 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Arbitro;
 import com.sistema.torneos.app.domain.repository.ArbitroRepository;
+import com.sistema.torneos.app.web.model.ArbitroModel;
+import com.sistema.torneos.app.web.model.mapper.ArbitroMapper;
+import com.sistema.torneos.app.web.model.mapper.GrupoMapper;
 
 import java.util.List;
 
@@ -20,24 +23,36 @@ public class ArbitroFacade {
         this.arbitroRepository = arbitroRepository;
     }
 
-    public List<Arbitro> findAll() {
-        return arbitroRepository.findAll();
+    public List<ArbitroModel> findAll() {
+    	
+    	List<Arbitro> arbitros = arbitroRepository.findAll();
+    	
+    	 return ArbitroMapper.INSTANCE.toModel(arbitros);
     }
 
-    public Arbitro findById(Long id) {
-        return arbitroRepository.findById(id).orElse(null);
+    public ArbitroModel findById(Long id) {
+    	 return ArbitroMapper.INSTANCE.toModel(arbitroRepository.findById(id).orElse(null));
     }
 
     @Transactional
-    public Arbitro create(Arbitro arbitro) {
-        return arbitroRepository.save(arbitro);
+    public ArbitroModel create(ArbitroModel arbitroModel) {
+    	
+    	Arbitro arbitro = null;
+    	
+    	arbitro = arbitroRepository.findByNombreAndApellido(arbitroModel.getNombre(),arbitroModel.getApellido());
+    	
+    	if (arbitro!=null) {
+    	    throw new RuntimeException("Ya existe un arbitro con estos datos");
+    	}
+    	
+    	return ArbitroMapper.INSTANCE.toModel(arbitroRepository.save(ArbitroMapper.INSTANCE.toEntity(arbitroModel)));
     }
 
     @Transactional
-    public Arbitro update(Long id, Arbitro arbitro) {
+    public ArbitroModel update(Long id, ArbitroModel arbitroModel) {
         if (arbitroRepository.existsById(id)) {
-            arbitro.setId(id);
-            return arbitroRepository.save(arbitro);
+            arbitroModel.setId(id);
+            return ArbitroMapper.INSTANCE.toModel(arbitroRepository.save(ArbitroMapper.INSTANCE.toEntity(arbitroModel)));
         }
         return null;
     }
