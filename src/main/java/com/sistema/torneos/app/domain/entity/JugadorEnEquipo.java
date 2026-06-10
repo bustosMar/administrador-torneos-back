@@ -1,11 +1,13 @@
 package com.sistema.torneos.app.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -38,6 +40,7 @@ public class JugadorEnEquipo {
     @Column(name = "activo")
     private boolean activo;
 
-    @Column(name = "creado_en")
-    private Date creadoEn = new Date();
+    @Column(name = "fecha_Creacion")
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private LocalDate creadoEn = LocalDate.now();
 }

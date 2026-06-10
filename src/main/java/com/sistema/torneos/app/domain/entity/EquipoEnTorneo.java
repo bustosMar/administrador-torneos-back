@@ -1,12 +1,14 @@
 package com.sistema.torneos.app.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDate;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,7 +39,8 @@ public class EquipoEnTorneo {
     private Grupo grupo;
 
     @Column(name = "fecha_Creacion")
-    private Date creadoEn = new Date();
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private LocalDate creadoEn = LocalDate.now();
 
     @OneToMany(mappedBy = "equipoTorneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

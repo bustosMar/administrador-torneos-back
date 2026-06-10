@@ -1,5 +1,6 @@
 package com.sistema.torneos.app.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -25,9 +26,11 @@ public class Suspension {
     private Jugador jugador;
 
     @Column(name = "fecha_inicio", nullable = false)
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate fechaInicio;
 
     @Column(name = "fecha_fin", nullable = false)
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate fechaFin;
 
     @Column(columnDefinition = "TEXT")

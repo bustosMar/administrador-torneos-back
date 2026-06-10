@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sistema.torneos.app.service.VigenciaService;
 import com.sistema.torneos.app.web.model.request.LoginRequest;
 
 import io.jsonwebtoken.Claims;
@@ -37,6 +38,9 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private VigenciaService vigenciaService;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult result) throws JsonProcessingException {
@@ -49,9 +53,13 @@ public class AuthController {
         try {
             auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getNombreUsuario(), loginRequest.getPassword()));
+                      
+            vigenciaService.obtenerVigenciaActual(loginRequest.getClave());
+            
+      
         } catch (AuthenticationException ex) {
             return ResponseEntity.status(401).body(Map.of(
-                    "message", "Usuario o contraseña incorrectos.",
+                    "message", "Usuario, contraseña o clave incorrectos.",
                     "error", ex.getMessage()
             ));
         }

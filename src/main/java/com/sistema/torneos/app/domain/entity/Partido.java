@@ -1,13 +1,14 @@
 package com.sistema.torneos.app.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.OffsetDateTime;
-import java.util.Date;
+
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,7 +39,8 @@ public class Partido {
     private Arbitro arbitro;
 
     @Column(name = "fecha", nullable = false)
-    private Date fecha;
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    private LocalDate fecha;
     
     @Column(name = "hora", nullable = false)
     private String hora;
