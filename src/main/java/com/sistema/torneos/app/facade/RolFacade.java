@@ -1,7 +1,7 @@
 package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Rol;
-import com.sistema.torneos.app.domain.repository.RoleRepository;
+import com.sistema.torneos.app.domain.repository.RolRepository;
 
 import java.util.List;
 
@@ -13,10 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class RolFacade {
 
-    private final RoleRepository roleRepository;
+    private final RolRepository roleRepository;
 
     @Autowired
-    public RolFacade(RoleRepository roleRepository) {
+    public RolFacade(RolRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
 

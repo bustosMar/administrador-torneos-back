@@ -36,7 +36,7 @@ public class EquipoEnTorneo {
     @JsonIgnore
     private Grupo grupo;
 
-    @Column(name = "creado_en")
+    @Column(name = "fecha_Creacion")
     private Date creadoEn = new Date();
 
     @OneToMany(mappedBy = "equipoTorneo", cascade = CascadeType.ALL, orphanRemoval = true)

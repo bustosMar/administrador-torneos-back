@@ -2,7 +2,7 @@ package com.sistema.torneos.config;
 
 import com.sistema.torneos.app.domain.entity.Rol;
 import com.sistema.torneos.app.domain.entity.Usuario;
-import com.sistema.torneos.app.domain.repository.RoleRepository;
+import com.sistema.torneos.app.domain.repository.RolRepository;
 import com.sistema.torneos.app.domain.repository.UsuarioRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,11 +13,11 @@ import java.util.List;
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private final RoleRepository roleRepository;
+    private final RolRepository roleRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DataInitializer(RoleRepository roleRepository,
+    public DataInitializer(RolRepository roleRepository,
                            UsuarioRepository usuarioRepository,
                            PasswordEncoder passwordEncoder) {
         this.roleRepository = roleRepository;

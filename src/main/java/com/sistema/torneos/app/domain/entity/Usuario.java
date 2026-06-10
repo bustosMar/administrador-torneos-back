@@ -43,8 +43,7 @@ public class Usuario {
     @JoinTable(
         name="usuarios_roles",
         joinColumns = {@JoinColumn(name="id_usuario")},
-        inverseJoinColumns = @JoinColumn(name="id_rol"),
-        uniqueConstraints = { @UniqueConstraint(columnNames = {"id_usuario", "id_rol"})}
+        inverseJoinColumns = @JoinColumn(name="id_rol")
     )
     private List<Rol> roles = new ArrayList<>();
     

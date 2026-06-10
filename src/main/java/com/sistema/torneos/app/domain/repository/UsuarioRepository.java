@@ -8,5 +8,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 	
     Optional<Usuario> findByNombreUsuario(String nombreUsuario);
     
-    Usuario findByNombreAndApellidoAndNombreUsuario(String nombre, String apellido,String nombreUsuario);
+    Optional<Usuario> findByNombreAndApellidoAndNombreUsuario(
+    	    String nombre,
+    	    String apellido,
+    	    String nombreUsuario
+    	);
 }
