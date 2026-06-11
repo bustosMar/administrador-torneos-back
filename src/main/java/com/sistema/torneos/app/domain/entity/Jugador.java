@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Base64;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -33,12 +34,10 @@ public class Jugador {
     private LocalDate fechaNacimiento;
     
 
-   /* @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "foto", columnDefinition = "bytea")
-    private byte[] foto;
+    @Column(columnDefinition = "TEXT")
+    private String foto;
 
-    @Lob
+    /*@Lob
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "huella", columnDefinition = "bytea")
     private byte[] huella;*/
@@ -50,5 +49,6 @@ public class Jugador {
     @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Gol> goles = new HashSet<>();
+    
     
 }
