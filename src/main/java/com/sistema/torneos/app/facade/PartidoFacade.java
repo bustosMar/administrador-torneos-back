@@ -2,6 +2,8 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Partido;
 import com.sistema.torneos.app.domain.repository.PartidoRepository;
+import com.sistema.torneos.app.web.model.mapper.PartidoMapper;
+import com.sistema.torneos.app.web.model.request.PartidoRequest;
 
 import java.util.List;
 
@@ -48,4 +50,13 @@ public class PartidoFacade {
             partidoRepository.deleteById(id);
         }
     }
+
+     @Transactional
+	public void createPartido(List<PartidoRequest> partido) {
+
+        List<Partido> partidos = PartidoMapper.INSTANCE.toEntityList(partido);
+        partidoRepository.saveAll(partidos);
+		
+		
+	}
 }

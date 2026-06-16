@@ -33,7 +33,7 @@ public class Torneo {
     @Column(name = "fecha_fin")
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate fechaFin;
-
+   
     @Column(name = "fecha_creacion")
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate creadoEn  = LocalDate.now();

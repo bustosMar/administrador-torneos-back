@@ -33,7 +33,12 @@ public class Jugador {
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate fechaNacimiento;
     
-
+    @Column(name = "estado")
+    private String estado;
+    
+    @Column(name = "municipio")
+    private String municipio;
+    
     @Column(columnDefinition = "TEXT")
     private String foto;
 

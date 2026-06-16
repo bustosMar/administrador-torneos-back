@@ -2,6 +2,7 @@ package com.sistema.torneos.app.service;
 
 import com.sistema.torneos.app.domain.entity.Partido;
 import com.sistema.torneos.app.facade.PartidoFacade;
+import com.sistema.torneos.app.web.model.request.PartidoRequest;
 
 import java.util.List;
 
@@ -37,4 +38,9 @@ public class PartidoService {
     public void delete(Long id) {
         partidoFacade.delete(id);
     }
+
+	public void createPartido(List<PartidoRequest> partido) {
+		partidoFacade.createPartido(partido);
+		
+	}
 }

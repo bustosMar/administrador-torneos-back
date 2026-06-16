@@ -1,6 +1,5 @@
 package com.sistema.torneos.app.web.controller;
 
-import com.sistema.torneos.app.domain.entity.Jugador;
 import com.sistema.torneos.app.service.JugadorService;
 import com.sistema.torneos.app.web.model.JugadorModel;
 

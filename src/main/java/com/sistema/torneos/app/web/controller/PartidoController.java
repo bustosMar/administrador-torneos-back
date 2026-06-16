@@ -2,6 +2,7 @@ package com.sistema.torneos.app.web.controller;
 
 import com.sistema.torneos.app.domain.entity.Partido;
 import com.sistema.torneos.app.service.PartidoService;
+import com.sistema.torneos.app.web.model.request.PartidoRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +45,11 @@ public class PartidoController {
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         partidoService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+    
+    @PostMapping("/jornada")
+    public ResponseEntity<Void> partidos(@RequestBody List<PartidoRequest> partido) {
+    	partidoService.createPartido(partido);
+    	return ResponseEntity.noContent().build();
     }
 }
