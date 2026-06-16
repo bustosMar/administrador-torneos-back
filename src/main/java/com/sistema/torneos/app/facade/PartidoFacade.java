@@ -2,6 +2,7 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Partido;
 import com.sistema.torneos.app.domain.repository.PartidoRepository;
+import com.sistema.torneos.app.exception.ResourceNotFoundException;
 import com.sistema.torneos.app.web.model.mapper.PartidoMapper;
 import com.sistema.torneos.app.web.model.request.PartidoRequest;
 
@@ -51,12 +52,45 @@ public class PartidoFacade {
         }
     }
 
-     @Transactional
-	public void createPartido(List<PartidoRequest> partido) {
+    @Transactional
+    public void createPartido(List<PartidoRequest> request) {
 
-        List<Partido> partidos = PartidoMapper.INSTANCE.toEntityList(partido);
+        List<Partido> partidos =
+                PartidoMapper.INSTANCE.toEntityList(request);
+
+        for (Partido partido : partidos) {
+
+            Long idTorneo = partido.getTorneo().getId();
+            Long idGrupo = partido.getGrupo().getId();
+
+            List<Partido> partidosJugados =
+                    partidoRepository.findByTorneoIdAndGrupoId(
+                            idTorneo,
+                            idGrupo);
+
+            boolean existe = partidosJugados.stream().anyMatch(jugado ->
+
+                    (jugado.getEquipoLocal().getId()
+                            .equals(partido.getEquipoLocal().getId())
+                     &&
+                     jugado.getEquipoVisitante().getId()
+                            .equals(partido.getEquipoVisitante().getId()))
+
+                    ||
+
+                    (jugado.getEquipoLocal().getId()
+                            .equals(partido.getEquipoVisitante().getId())
+                     &&
+                     jugado.getEquipoVisitante().getId()
+                            .equals(partido.getEquipoLocal().getId()))
+            );
+
+            if (existe) {
+                throw new ResourceNotFoundException(
+                        "El encuentro ya fue jugado anteriormente.");
+           }
+        }
+
         partidoRepository.saveAll(partidos);
-		
-		
-	}
+    }
 }
