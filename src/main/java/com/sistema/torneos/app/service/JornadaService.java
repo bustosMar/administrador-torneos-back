@@ -6,20 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sistema.torneos.app.facade.JornadaFacade;
-import com.sistema.torneos.app.web.model.response.JornadaReponse;
+import com.sistema.torneos.app.web.model.response.JornadaResponse;
 
 @Service
 public class JornadaService {
-
-    private JornadaFacade jornadaFacade;
-    
+   
     @Autowired
-    public JornadaService(JornadaFacade jornadaFacade) {
-        this.jornadaFacade = jornadaFacade;
+    private JornadaFacade jornadaFacade;
+
+    public List<JornadaResponse> generarCalendario(Long idTorneo) {
+        return jornadaFacade.crearJornadas(idTorneo);
     }
 
-    public List<JornadaReponse> generarJornada(Long idTorneo) {
-        return jornadaFacade.generarJornada(idTorneo);
+    public JornadaResponse generarSiguienteJornada(Long idTorneo) {
+        return jornadaFacade.activarSiguienteJornada(idTorneo);
+    }
+
+    public JornadaResponse obtenerJornadaActual(Long idTorneo) {
+        return jornadaFacade.obtenerJornadaActual(idTorneo);
     }
 }
 

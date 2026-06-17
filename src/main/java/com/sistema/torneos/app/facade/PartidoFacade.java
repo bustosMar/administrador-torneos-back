@@ -55,16 +55,16 @@ public class PartidoFacade {
     @Transactional
     public void createPartido(List<PartidoRequest> request) {
 
-        List<Partido> partidos =
+        /*List<Partido> partidos =
                 PartidoMapper.INSTANCE.toEntityList(request);
 
         for (Partido partido : partidos) {
 
-            Long idTorneo = partido.getTorneo().getId();
+          
             Long idGrupo = partido.getGrupo().getId();
 
             List<Partido> partidosJugados =
-                    partidoRepository.findByTorneoIdAndGrupoId(
+                    partidoRepository.findByJornada_Torneo_IdAndGrupo_Id(
                             idTorneo,
                             idGrupo);
 
@@ -92,5 +92,5 @@ public class PartidoFacade {
         }
 
         partidoRepository.saveAll(partidos);
-    }
+    */}
 }

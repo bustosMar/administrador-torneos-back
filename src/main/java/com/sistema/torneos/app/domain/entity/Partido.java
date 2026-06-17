@@ -24,11 +24,6 @@ public class Partido {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_torneo", nullable = false)
-    @JsonIgnore
-    private Torneo torneo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_grupo")
     @JsonIgnore
     private Grupo grupo;
@@ -54,6 +49,11 @@ public class Partido {
     @JoinColumn(name = "id_equipo_en_torneo_visitante", nullable = false)
     @JsonIgnore
     private EquipoEnTorneo equipoVisitante;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_jornada", nullable = false)
+    @JsonIgnore
+    private Jornada jornada;
 
     @OneToMany(mappedBy = "partido", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

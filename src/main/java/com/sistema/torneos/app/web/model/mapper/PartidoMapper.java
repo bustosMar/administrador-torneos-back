@@ -15,7 +15,6 @@ public interface PartidoMapper extends EntityMapper<PartidoRequest, Partido> {
     PartidoMapper INSTANCE = Mappers.getMapper(PartidoMapper.class);
     
     @Override
-    @Mapping(source = "idTorneo", target = "torneo.id")
     @Mapping(source = "idGrupo", target = "grupo.id")
     @Mapping(source = "idLocal", target = "equipoLocal.id")
     @Mapping(source = "idVisitante", target = "equipoVisitante.id")

@@ -17,4 +17,6 @@ public interface EquipoEnTorneoRepository extends JpaRepository<EquipoEnTorneo, 
 	@Query("SELECT e FROM EquipoEnTorneo e WHERE e.torneo.id = :torneoId")
 	List<EquipoEnTorneo> getByTorneo(@Param("torneoId") Long torneoId);
 	
+	List<EquipoEnTorneo> getByGrupoId(Long id);
+	
 }
