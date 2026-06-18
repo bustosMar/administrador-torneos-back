@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PartidoRepository extends JpaRepository<Partido, Long> {
 	
-	List<Partido> findByJornada_Torneo_IdAndGrupo_Id(Long torneoId, Long grupoId);	
+	List<Partido> findByJornada_Torneo_IdAndGrupo_Id(Long id, Long idGrupo);	
 
-    List<Partido> findByJornadaId(Long jornadaId);
+    List<Partido> findByJornadaId(Long id);
 }

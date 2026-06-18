@@ -22,25 +22,62 @@ public class JornadaFacade {
     private JornadaRepository jornadaRepository;
     
     @Autowired
-    private GrupoRepository grupoRepository;
-
-    @Autowired
     private PartidoRepository partidoRepository;
 
     @Autowired
     private EquipoEnTorneoRepository equipoEnTorneoRepository;
 
-    @Autowired
-    private TorneoRepository torneoRepository;
-
-    private LocalDate ultimoDomingo;
-
+ 
     // =====================================================
     // 1. GENERAR CALENDARIO (SOLO JORNADAS)
     // =====================================================
+    @Transactional
     public List<JornadaResponse> crearJornadas(Long idTorneo) {
 
-        // 1. Traer todos los equipos del torneo
+        // =====================================================
+        // 1. ELIMINAR JORNADAS PROGRAMADAS EXISTENTES
+        // =====================================================
+
+        List<Jornada> jornadasProgramadas =
+                jornadaRepository.findByTorneoIdAndEstado(
+                        idTorneo,
+                        "PROGRAMADA");
+
+        if (!jornadasProgramadas.isEmpty()) {
+
+            for (Jornada jornada : jornadasProgramadas) {
+
+                List<Partido> partidos =
+                        partidoRepository.findByJornadaId(
+                                jornada.getId());
+
+                if (!partidos.isEmpty()) {
+                    partidoRepository.deleteAll(partidos);
+                }
+            }
+
+            jornadaRepository.deleteAll(jornadasProgramadas);
+            
+            reajustarSecuencia();
+            
+        }
+
+        // =====================================================
+        // 2. OBTENER CUÁNTAS JORNADAS YA FUERON JUGADAS
+        // =====================================================
+
+        List<Jornada> jornadasJugadas =
+                jornadaRepository.findByTorneoIdAndEstado(
+                        idTorneo,
+                        "JUGADA");
+
+        int numeroInicial =
+                jornadasJugadas.size() + 1;
+
+        // =====================================================
+        // 3. OBTENER EQUIPOS DEL TORNEO
+        // =====================================================
+
         List<EquipoEnTorneo> equipos =
                 equipoEnTorneoRepository.getByTorneo(idTorneo);
 
@@ -48,94 +85,101 @@ public class JornadaFacade {
             return new ArrayList<>();
         }
 
-        // 2. Agrupar por grupo (porque el grupo viene desde EquipoEnTorneo)
+        // =====================================================
+        // 4. AGRUPAR POR GRUPO
+        // =====================================================
+
         Map<Grupo, List<EquipoEnTorneo>> porGrupo =
                 equipos.stream()
-                        .collect(Collectors.groupingBy(EquipoEnTorneo::getGrupo));
+                        .collect(Collectors.groupingBy(
+                                EquipoEnTorneo::getGrupo));
 
-        List<Jornada> nuevasJornadas = new ArrayList<>();
+        List<Jornada> nuevasJornadas =
+                new ArrayList<>();
 
-        // 3. Iterar por cada grupo
-        for (Map.Entry<Grupo, List<EquipoEnTorneo>> entry : porGrupo.entrySet()) {
+        // =====================================================
+        // 5. GENERAR CALENDARIO POR GRUPO
+        // =====================================================
+
+        for (Map.Entry<Grupo, List<EquipoEnTorneo>> entry :
+                porGrupo.entrySet()) {
 
             Grupo grupo = entry.getKey();
-            List<EquipoEnTorneo> equiposGrupo = entry.getValue();
-            
-            System.out.println("GRUPO = " + grupo);
-            System.out.println("ID = " + grupo.getId());
 
-            if (equiposGrupo == null || equiposGrupo.size() < 2) {
+            List<EquipoEnTorneo> equiposGrupo =
+                    entry.getValue();
+
+            if (equiposGrupo.size() < 2) {
                 continue;
             }
 
-            // 4. Generar calendario round robin por grupo
-            List<List<EquipoEnTorneo>> calendario =
-                    generarRoundRobin(equiposGrupo);
-
-            // 5. Número de jornada (continuación por grupo)
-            int siguienteNumero =
-                    obtenerUltimoNumeroJornada(grupo.getId()) + 1;
-
-            // 6. Torneo (tomado desde cualquier equipo del grupo)
             Torneo torneo =
                     equiposGrupo.get(0).getTorneo();
 
-            // 7. Crear jornadas
-            for (List<EquipoEnTorneo> ronda : calendario) {
+            List<List<EquipoEnTorneo>> calendario =
+                    generarRoundRobin(equiposGrupo);
 
-                Jornada j = new Jornada();
+            int numeroJornada = numeroInicial;
 
-                j.setNumeroJornada(siguienteNumero++);
-                j.setEstado("PROGRAMADA");
-                j.setTorneo(torneo);
-                j.setGrupo(grupo);
-                j.setFechaProgramada(calcularSiguienteDomingo());
+            for (List<EquipoEnTorneo> ronda :
+                    calendario) {
 
-                nuevasJornadas.add(j);
+                Jornada jornada =
+                        new Jornada();
+
+                jornada.setNumeroJornada(
+                        numeroJornada++);
+
+                jornada.setEstado(
+                        "PROGRAMADA");
+
+                jornada.setTorneo(
+                        torneo);
+
+                jornada.setGrupo(
+                        grupo);
+
+                jornada.setFechaProgramada(
+                        calcularFechaJornada(
+                                numeroJornada - numeroInicial));
+
+                nuevasJornadas.add(
+                        jornada);
             }
         }
 
-        // 8. Guardar todo
-        jornadaRepository.saveAll(nuevasJornadas);
+        // =====================================================
+        // 6. GUARDAR JORNADAS
+        // =====================================================
 
-        // 9. Mapear respuesta
+        jornadaRepository.saveAll(
+                nuevasJornadas);
+
+        // =====================================================
+        // 7. RESPUESTA
+        // =====================================================
+
         return nuevasJornadas.stream()
                 .map(this::mapJornadaSinPartidos)
                 .toList();
     }
  
     
-    // =====================================================
-    // FECHA SIGUIENTE DOMINGO (SIN ESTADO GLOBAL)
-    // =====================================================
-    private LocalDate calcularSiguienteDomingo() {
-        return LocalDate.now()
-                .with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+    private LocalDate calcularFechaJornada(
+            int semanas) {
+
+        LocalDate primerDomingo =
+                LocalDate.now()
+                        .with(
+                            TemporalAdjusters.next(
+                                    DayOfWeek.SUNDAY));
+
+        return primerDomingo.plusWeeks(
+                semanas);
     }
+        
 
-    // =====================================================
-    // OBTENER ÚLTIMO NÚMERO DE JORNADA
-    // =====================================================
-    private int obtenerUltimoNumeroJornada(Long id) {
-
-    	 Jornada ultima =
-    	            jornadaRepository.findTopByGrupoIdOrderByNumeroJornadaDesc(
-    	                    id);
-
-    	    return ultima != null
-    	            ? ultima.getNumeroJornada()
-    	            : 0;
-    }
-
-    // =====================================================
-    // VALIDAR SI YA EXISTE JORNADA
-    // =====================================================
-    private boolean existeJornada(Long grupoId, int numero) {
-
-        return jornadaRepository
-                .existsByGrupoIdAndNumeroJornada(grupoId, numero);
-    }
-
+   
     // =====================================================
     // MAP SIMPLE
     // =====================================================
@@ -167,8 +211,8 @@ public class JornadaFacade {
     // 2. ACTIVAR SIGUIENTE JORNADA (CREA PARTIDOS)
     // =====================================================
     public JornadaResponse activarSiguienteJornada(Long idTorneo) {
-
-        Jornada jornada = jornadaRepository
+    	
+    	Jornada jornada = jornadaRepository
                 .findFirstByTorneoIdAndEstado(idTorneo, "PROGRAMADA");
 
         if (jornada == null) {
@@ -178,11 +222,27 @@ public class JornadaFacade {
         List<EquipoEnTorneo> equipos =
                 equipoEnTorneoRepository.getByTorneo(idTorneo);
 
-        List<List<EquipoEnTorneo>> calendario =
-                generarRoundRobin(equipos);
+        List<Partido> partidosExistentesBD =
+                partidoRepository.findAll();
+
+        Set<String> partidosExistentes =
+                partidosExistentesBD.stream()
+                        .map(p -> {
+
+                            Long a = p.getEquipoLocal().getId();
+                            Long b = p.getEquipoVisitante().getId();
+
+                            return Math.min(a, b)
+                                    + "-"
+                                    + Math.max(a, b);
+
+                        })
+                        .collect(Collectors.toSet());
 
         List<EquipoEnTorneo> ronda =
-                calendario.get(jornada.getNumeroJornada() - 1);
+                generarRondaSinRepetidos(
+                        equipos,
+                        partidosExistentes);
 
         List<Partido> partidos = new ArrayList<>();
 
@@ -202,7 +262,7 @@ public class JornadaFacade {
             p.setGrupo(local.getGrupo());
 
             p.setFecha(jornada.getFechaProgramada());
-            p.setHora("19:00"); // puedes parametrizarlo
+            p.setHora("09:00"); // puedes parametrizarlo
             p.setGoles(new HashSet<>());
             p.setPresencias(new HashSet<>());
 
@@ -355,5 +415,76 @@ public class JornadaFacade {
         return dto;
     }
     
+    @Transactional
+    public void reajustarSecuencia() {   
+
+        jornadaRepository.sincronizarSecuencia();
+    }
+    
+    private boolean existePartido(
+            EquipoEnTorneo local,
+            EquipoEnTorneo visitante,
+            Set<String> partidosExistentes) {
+
+        Long id1 = local.getId();
+        Long id2 = visitante.getId();
+
+        String clave =
+                Math.min(id1, id2)
+                + "-"
+                + Math.max(id1, id2);
+
+        return partidosExistentes.contains(clave);
+    }
+    
+    private List<EquipoEnTorneo> generarRondaSinRepetidos(
+            List<EquipoEnTorneo> equipos,
+            Set<String> partidosExistentes) {
+
+        List<EquipoEnTorneo> ronda = new ArrayList<>();
+
+        Set<Long> usados = new HashSet<>();
+
+        for (int i = 0; i < equipos.size(); i++) {
+
+            EquipoEnTorneo local = equipos.get(i);
+
+            if (usados.contains(local.getId())) {
+                continue;
+            }
+
+            for (int j = i + 1; j < equipos.size(); j++) {
+
+                EquipoEnTorneo visitante = equipos.get(j);
+
+                if (usados.contains(visitante.getId())) {
+                    continue;
+                }
+
+                if (!existePartido(
+                        local,
+                        visitante,
+                        partidosExistentes)) {
+
+                    ronda.add(local);
+                    ronda.add(visitante);
+
+                    usados.add(local.getId());
+                    usados.add(visitante.getId());
+
+                    String clave =
+                            Math.min(local.getId(), visitante.getId())
+                            + "-"
+                            + Math.max(local.getId(), visitante.getId());
+
+                    partidosExistentes.add(clave);
+
+                    break;
+                }
+            }
+        }
+
+        return ronda;
+    }
  
 }
