@@ -2,11 +2,12 @@ package com.sistema.torneos.app.web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.sistema.torneos.app.web.model.response.HuellaResponse;
-
+import com.sistema.torneos.app.web.model.response.LectorResponse;
 import com.sistema.torneos.app.service.HuellaService;
 
 @RestController
@@ -20,13 +21,14 @@ public class HuellaController {
         this.huellaService = huellaService;
     }
 
-    @PostMapping("/capturar")
-    public ResponseEntity<HuellaResponse> capturar() {
+    @PostMapping("/lector/escuchar")
+    public LectorResponse escucharLector() {
+        return huellaService.escucharLector();
+    }
 
-        HuellaResponse response =
-                huellaService.capturarHuella();
-
-        return ResponseEntity.ok(response);
+    @GetMapping("/obtener")
+    public HuellaResponse obtenerHuella() {
+        return huellaService.obtenerHuella();
     }
 
 }

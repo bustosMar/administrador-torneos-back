@@ -7,11 +7,13 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
-public class HuellaResponse {
+public class LectorResponse {
 
-	private boolean success;
+    private Boolean success;
+
     private String mensaje;
-    private String dedo;
-    private String templateBase64;
+    
+    private Boolean escuchando;
+
 
 }
