@@ -17,5 +17,6 @@ public class JugadorModel {
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate fechaNacimiento;
     private String foto;
+    private String huella;
     
 }

@@ -36,10 +36,14 @@ public class Jugador {
     @Column(columnDefinition = "TEXT")
     private String foto;
 
-    /*@Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "huella", columnDefinition = "bytea")
-    private byte[] huella;*/
+    
+    @Column(columnDefinition = "TEXT")
+    private String huella;
+    
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_municipio_estado", nullable = false, foreignKey = @ForeignKey(name = "fk_jugador_municipioestado"))
+    private MunicipioEstado municipioEstado;   
+    
 
     @OneToMany(mappedBy = "jugador", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

@@ -1,35 +1,25 @@
 package com.sistema.torneos.app.facade;
 
-import com.digitalpersona.onetouch.DPFPDataPurpose;
-import com.digitalpersona.onetouch.DPFPFeatureSet;
-import com.digitalpersona.onetouch.DPFPGlobal;
-import com.digitalpersona.onetouch.DPFPSample;
-import com.digitalpersona.onetouch.DPFPTemplate;
-import com.digitalpersona.onetouch.capture.DPFPCapture;
-import com.digitalpersona.onetouch.capture.event.DPFPDataAdapter;
-import com.digitalpersona.onetouch.capture.event.DPFPDataEvent;
-import com.digitalpersona.onetouch.capture.event.DPFPErrorAdapter;
-import com.digitalpersona.onetouch.capture.event.DPFPErrorEvent;
-import com.digitalpersona.onetouch.capture.event.DPFPReaderStatusAdapter;
-import com.digitalpersona.onetouch.capture.event.DPFPReaderStatusEvent;
-import com.digitalpersona.onetouch.processing.DPFPEnrollment;
-import com.digitalpersona.onetouch.processing.DPFPTemplateStatus;
 import com.sistema.torneos.app.web.model.response.HuellaResponse;
 import com.sistema.torneos.app.web.model.response.LectorResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.Base64;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 @Component
 public class HuellaFacade {
 
-    private DPFPCapture capturador;
-    private DPFPEnrollment enrollment;
+    @Value("${biometria.capture.jar}")
+    private String biometriaJar;
+
+    @Value("${biometria.sdk.path}")
+    private String sdkPath;
 
     private volatile boolean escuchando = false;
-    private volatile boolean lectorConectado = false;
-
     private volatile String ultimoTemplateBase64;
+    private volatile String ultimoDedo;
     private volatile String ultimoMensaje = "No se ha capturado ninguna huella.";
 
     public synchronized LectorResponse escucharLector() {
@@ -37,45 +27,79 @@ public class HuellaFacade {
         if (escuchando) {
             return LectorResponse.builder()
                     .success(true)
-                    .mensaje("El lector ya se encuentra escuchando.")
+                    .mensaje("Ya hay una captura en proceso.")
                     .escuchando(true)
                     .build();
         }
 
-        try {
-            ultimoTemplateBase64 = null;
-            ultimoMensaje = "Esperando huella...";
+        escuchando = true;
+        ultimoTemplateBase64 = null;
+        ultimoDedo = null;
+        ultimoMensaje = "Abriendo capturador biométrico...";
 
-            enrollment = DPFPGlobal.getEnrollmentFactory().createEnrollment();
-            capturador = DPFPGlobal.getCaptureFactory().createCapture();
+        new Thread(() -> {
+            try {
+                ProcessBuilder processBuilder = new ProcessBuilder(
+                        "java",
+                        "-Djava.awt.headless=false",
+                        "-Djava.library.path=" + sdkPath,
+                        "-jar",
+                        biometriaJar
+                );
 
-            configurarEventos();
+                processBuilder.redirectErrorStream(true);
 
-            capturador.startCapture();
-            escuchando = true;
+                Process process = processBuilder.start();
 
-            return LectorResponse.builder()
-                    .success(true)
-                    .mensaje("Escucha iniciada. Coloca el dedo en el lector.")
-                    .escuchando(true)
-                    .build();
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()))) {
 
-        } catch (Exception e) {
-            escuchando = false;
-            ultimoMensaje = "Error al iniciar lector: " + e.getMessage();
+                    String line;
 
-            return LectorResponse.builder()
-                    .success(false)
-                    .mensaje(ultimoMensaje)
-                    .escuchando(false)
-                    .build();
-        }
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println("[BIOMETRIA] " + line);
+
+                        if (line.startsWith("OK|")) {
+                            String[] partes = line.split("\\|", 3);
+
+                            if (partes.length == 3) {
+                                ultimoDedo = partes[1];
+                                ultimoTemplateBase64 = partes[2];
+                                ultimoMensaje = "Huella capturada correctamente.";
+                            }
+                        }
+
+                        if (line.startsWith("ERROR|")) {
+                            ultimoMensaje = line.substring("ERROR|".length());
+                        }
+                    }
+                }
+
+                int exitCode = process.waitFor();
+
+                if (exitCode != 0 && ultimoTemplateBase64 == null) {
+                    ultimoMensaje = "El capturador finalizó con error. Código: " + exitCode;
+                }
+
+            } catch (Exception e) {
+                ultimoMensaje = "Error ejecutando capturador biométrico: " + e.getMessage();
+                e.printStackTrace();
+
+            } finally {
+                escuchando = false;
+            }
+        }).start();
+
+        return LectorResponse.builder()
+                .success(true)
+                .mensaje("Capturador biométrico abierto. Coloca el dedo en el lector.")
+                .escuchando(true)
+                .build();
     }
 
     public HuellaResponse obtenerHuella() {
 
         if (ultimoTemplateBase64 == null || ultimoTemplateBase64.isBlank()) {
-                
             return HuellaResponse.builder()
                     .success(false)
                     .mensaje(ultimoMensaje)
@@ -87,101 +111,20 @@ public class HuellaFacade {
         return HuellaResponse.builder()
                 .success(true)
                 .mensaje("Huella obtenida correctamente.")
-                .dedo("UNKNOWN")
+                .dedo(ultimoDedo)
                 .templateBase64(ultimoTemplateBase64)
                 .build();
     }
 
-    private void configurarEventos() {
+    public synchronized LectorResponse detenerLector() {
 
-        capturador.addDataListener(new DPFPDataAdapter() {
+        escuchando = false;
+        ultimoMensaje = "Captura detenida.";
 
-            @Override
-            public void dataAcquired(DPFPDataEvent event) {
-            	
-            	System.out.println("Huella detectada por el lector");
-            	
-                try {
-                    DPFPSample sample = event.getSample();
-
-                    DPFPFeatureSet features = DPFPGlobal
-                            .getFeatureExtractionFactory()
-                            .createFeatureExtraction()
-                            .createFeatureSet(
-                                    sample,
-                                    DPFPDataPurpose.DATA_PURPOSE_ENROLLMENT
-                            );
-
-                    enrollment.addFeatures(features);
-
-                    if (enrollment.getTemplateStatus()
-                        == DPFPTemplateStatus.TEMPLATE_STATUS_READY) {
-
-                        DPFPTemplate template = enrollment.getTemplate();
-
-                        ultimoTemplateBase64 = Base64.getEncoder()
-                                .encodeToString(template.serialize());
-
-                        ultimoMensaje = "Huella capturada correctamente.";
-
-                        detenerCaptura();
-                    } else {
-                        ultimoMensaje = "Muestra capturada. Coloca el dedo nuevamente.";
-                    }
-
-                } catch (Exception e) {
-                    ultimoMensaje = "Error procesando huella: " + e.getMessage();
-
-                    try {
-                        enrollment.clear();
-                    } catch (Exception ignored) {
-                    }
-                }
-            }
-        });
-
-        capturador.addReaderStatusListener(new DPFPReaderStatusAdapter() {
-
-            @Override
-            public void readerConnected(DPFPReaderStatusEvent event) {
-                lectorConectado = true;
-                ultimoMensaje = "Lector conectado.";
-            }
-
-            @Override
-            public void readerDisconnected(DPFPReaderStatusEvent event) {
-                lectorConectado = false;
-                ultimoMensaje = "Lector desconectado.";
-                detenerCaptura();
-            }
-        });
-
-      capturador.addErrorListener(new DPFPErrorAdapter() {
-
-        @Override
-        public void errorOccured(DPFPErrorEvent event) {
-            ultimoMensaje = "Error del lector: " + event.getError();
-            System.out.println(ultimoMensaje);
-            detenerCaptura();
-        }
-
-        @Override
-        public void exceptionCaught(DPFPErrorEvent event) {
-            ultimoMensaje = "Excepción del lector: " + event.getError();
-            System.out.println(ultimoMensaje);
-            detenerCaptura();
-        }
-    });
-}
-
-    private synchronized void detenerCaptura() {
-        try {
-            if (capturador != null) {
-                capturador.stopCapture();
-            }
-        } catch (Exception ignored) {
-        } finally {
-            escuchando = false;
-        }
+        return LectorResponse.builder()
+                .success(true)
+                .mensaje(ultimoMensaje)
+                .escuchando(false)
+                .build();
     }
 }
