@@ -2,6 +2,7 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Jugador;
 import com.sistema.torneos.app.domain.repository.JugadorRepository;
+import com.sistema.torneos.app.util.SearchUtil;
 import com.sistema.torneos.app.web.model.JugadorModel;
 import com.sistema.torneos.app.web.model.mapper.JugadorMapper;
 
@@ -65,5 +66,10 @@ public class JugadorFacade {
         if (jugadorRepository.existsById(id)) {
             jugadorRepository.deleteById(id);
         }
+    }
+
+    public List<JugadorModel> search(String query) {
+        List<JugadorModel> allJugadores = findAll();
+        return SearchUtil.search(allJugadores, query);
     }
 }

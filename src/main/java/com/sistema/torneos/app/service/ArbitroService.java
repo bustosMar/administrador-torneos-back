@@ -37,4 +37,8 @@ public class ArbitroService {
     public void delete(Long id) {
         arbitroFacade.delete(id);
     }
+
+    public List<ArbitroModel> search(String query) {
+        return arbitroFacade.search(query);
+    }
 }

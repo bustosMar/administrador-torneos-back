@@ -22,6 +22,11 @@ public class RolController {
         return service.findAll();
     }
 
+    @GetMapping("/search")
+    public List<Rol> search(@RequestParam("q") String query) {
+        return service.search(query);
+    }
+
     @GetMapping("/{id}")
     public Rol getById(@PathVariable("id") Long id) {
         return service.findById(id);

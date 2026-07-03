@@ -2,6 +2,7 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Rol;
 import com.sistema.torneos.app.domain.repository.RolRepository;
+import com.sistema.torneos.app.util.SearchUtil;
 
 import java.util.List;
 
@@ -47,5 +48,10 @@ public class RolFacade {
         if (roleRepository.existsById(id)) {
             roleRepository.deleteById(id);
         }
+    }
+
+    public List<Rol> search(String query) {
+        List<Rol> allRoles = findAll();
+        return SearchUtil.search(allRoles, query);
     }
 }

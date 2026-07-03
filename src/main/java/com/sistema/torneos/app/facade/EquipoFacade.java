@@ -3,6 +3,7 @@ package com.sistema.torneos.app.facade;
 import com.sistema.torneos.app.domain.entity.Equipo;
 import com.sistema.torneos.app.web.model.EquipoModel;
 import com.sistema.torneos.app.domain.repository.EquipoRepository;
+import com.sistema.torneos.app.util.SearchUtil;
 import com.sistema.torneos.app.web.model.mapper.EquipoMapper;
 
 import java.util.List;
@@ -63,5 +64,10 @@ public class EquipoFacade {
         if (equipoRepository.existsById(id)) {
             equipoRepository.deleteById(id);
         }
+    }
+
+    public List<EquipoModel> search(String query) {
+        List<EquipoModel> allEquipos = findAll();
+        return SearchUtil.search(allEquipos, query);
     }
 }

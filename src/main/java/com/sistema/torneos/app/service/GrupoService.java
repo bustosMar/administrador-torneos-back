@@ -38,4 +38,8 @@ public class GrupoService {
     public void delete(Long id) {
         grupoFacade.delete(id);
     }
+
+    public List<GrupoModel> search(String query) {
+        return grupoFacade.search(query);
+    }
 }

@@ -37,4 +37,16 @@ public class TorneoService {
     public void delete(Long id) {
         torneoFacade.delete(id);
     }
+
+    public List<TorneoModel> search(String query) {
+        return torneoFacade.search(query);
+    }
+
+    public List<TorneoModel> findAllActivos() {
+        return torneoFacade.findAllActivos();
+    }
+
+    public List<TorneoModel> searchActivos(String query) {
+        return torneoFacade.searchActivos(query);
+    }
 }

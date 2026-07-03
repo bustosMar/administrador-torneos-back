@@ -38,4 +38,8 @@ public class EquipoService {
     public void delete(Long id) {
         equipoFacade.delete(id);
     }
+
+    public List<EquipoModel> search(String query) {
+        return equipoFacade.search(query);
+    }
 }

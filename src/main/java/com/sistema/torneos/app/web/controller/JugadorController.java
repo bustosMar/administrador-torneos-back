@@ -25,6 +25,11 @@ public class JugadorController {
         return jugadorService.findAll();
     }
 
+    @GetMapping("/search")
+    public List<JugadorModel> search(@RequestParam("q") String query) {
+        return jugadorService.search(query);
+    }
+
     @GetMapping("/{id}")
     public JugadorModel getById(@PathVariable("id") Long id) {
         return jugadorService.findById(id);

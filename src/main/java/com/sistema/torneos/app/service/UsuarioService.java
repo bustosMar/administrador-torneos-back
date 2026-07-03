@@ -37,4 +37,8 @@ public class UsuarioService {
     public void delete(Long id) {
         usuarioFacade.delete(id);
     }
+
+    public List<UsuarioModel> search(String query) {
+        return usuarioFacade.search(query);
+    }
 }

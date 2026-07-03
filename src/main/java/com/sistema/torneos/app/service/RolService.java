@@ -37,4 +37,8 @@ public class RolService {
     public void delete(Long id) {
         rolFacade.delete(id);
     }
+
+    public List<Rol> search(String query) {
+        return rolFacade.search(query);
+    }
 }

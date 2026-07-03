@@ -16,10 +16,9 @@ public class TorneoModel {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private Date fechaInicio;
 
-
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
     private Date fechaFin;
 
-   
+    private boolean activo = true;
 
 }

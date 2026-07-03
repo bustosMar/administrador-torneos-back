@@ -2,6 +2,7 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Grupo;
 import com.sistema.torneos.app.domain.repository.GrupoRepository;
+import com.sistema.torneos.app.util.SearchUtil;
 import com.sistema.torneos.app.web.model.GrupoModel;
 import com.sistema.torneos.app.web.model.mapper.GrupoMapper;
 
@@ -69,5 +70,10 @@ public class GrupoFacade {
             grupoRepository.deleteById(id);
         }
         
+    }
+
+    public List<GrupoModel> search(String query) {
+        List<GrupoModel> allGrupos = findAll();
+        return SearchUtil.search(allGrupos, query);
     }
 }

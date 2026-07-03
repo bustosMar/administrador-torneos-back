@@ -25,6 +25,11 @@ public class UsuarioController {
         return usuarioService.findAll();
     }
 
+    @GetMapping("/search")
+    public List<UsuarioModel> search(@RequestParam("q") String query) {
+        return usuarioService.search(query);
+    }
+
     @GetMapping("/{id}")
     public UsuarioModel getById(@PathVariable("id") Long id) {
         return usuarioService.findById(id);

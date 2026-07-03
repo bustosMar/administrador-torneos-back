@@ -2,9 +2,9 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Arbitro;
 import com.sistema.torneos.app.domain.repository.ArbitroRepository;
+import com.sistema.torneos.app.util.SearchUtil;
 import com.sistema.torneos.app.web.model.ArbitroModel;
 import com.sistema.torneos.app.web.model.mapper.ArbitroMapper;
-import com.sistema.torneos.app.web.model.mapper.GrupoMapper;
 
 import java.util.List;
 
@@ -62,5 +62,10 @@ public class ArbitroFacade {
         if (arbitroRepository.existsById(id)) {
             arbitroRepository.deleteById(id);
         }
+    }
+
+    public List<ArbitroModel> search(String query) {
+        List<ArbitroModel> allArbitros = findAll();
+        return SearchUtil.search(allArbitros, query);
     }
 }

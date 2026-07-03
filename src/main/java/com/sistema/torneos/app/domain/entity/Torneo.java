@@ -38,6 +38,9 @@ public class Torneo {
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate creadoEn  = LocalDate.now();
 
+    @Column(name = "activo", nullable = false)
+    private boolean activo = true;
+
     @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<EquipoEnTorneo> equiposEnTorneo = new HashSet<>();
@@ -46,5 +49,8 @@ public class Torneo {
     @JsonIgnore
     private Set<EquipoEnTorneo> jugadoresEnquipo = new HashSet<>();
 
+    @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<CategoriaTorneo> categoriasDelTorneo = new HashSet<>();
 
 }

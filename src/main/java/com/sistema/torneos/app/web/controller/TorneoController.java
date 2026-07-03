@@ -26,6 +26,21 @@ public class TorneoController {
         return torneoService.findAll();
     }
 
+    @GetMapping("/activos")
+    public List<TorneoModel> getActivos() {
+        return torneoService.findAllActivos();
+    }
+
+    @GetMapping("/search")
+    public List<TorneoModel> search(@RequestParam("q") String query) {
+        return torneoService.search(query);
+    }
+
+    @GetMapping("/activos/search")
+    public List<TorneoModel> searchActivos(@RequestParam("q") String query) {
+        return torneoService.searchActivos(query);
+    }
+
     @GetMapping("/{id}")
     public TorneoModel getById(@PathVariable("id") Long id) {
         return torneoService.findById(id);

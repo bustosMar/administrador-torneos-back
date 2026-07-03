@@ -23,6 +23,11 @@ public class ArbitroController {
         return arbitroService.findAll();
     }
 
+    @GetMapping("/search")
+    public List<ArbitroModel> search(@RequestParam("q") String query) {
+        return arbitroService.search(query);
+    }
+
     @GetMapping("/{id}")
     public ArbitroModel getById(@PathVariable("id") Long id) {
         return arbitroService.findById(id);

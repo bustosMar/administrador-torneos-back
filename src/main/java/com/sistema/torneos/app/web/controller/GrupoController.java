@@ -26,6 +26,11 @@ public class GrupoController {
         return grupoService.findAll();
     }
 
+    @GetMapping("/search")
+    public List<GrupoModel> search(@RequestParam("q") String query) {
+        return grupoService.search(query);
+    }
+
     @GetMapping("/{id}")
     public GrupoModel getById(@PathVariable("id") Long id) {
         return grupoService.findById(id);

@@ -4,6 +4,7 @@ import com.sistema.torneos.app.domain.entity.Usuario;
 import com.sistema.torneos.app.domain.repository.UsuarioRepository;
 import com.sistema.torneos.app.domain.entity.Rol;
 import com.sistema.torneos.app.domain.repository.RolRepository;
+import com.sistema.torneos.app.util.SearchUtil;
 import com.sistema.torneos.app.web.model.UsuarioModel;
 import com.sistema.torneos.app.web.model.mapper.UsuarioMapper;
 
@@ -119,5 +120,10 @@ public class UsuarioFacade {
         if (usuarioRepository.existsById(id)) {
             usuarioRepository.deleteById(id);
         }
+    }
+
+    public List<UsuarioModel> search(String query) {
+        List<UsuarioModel> allUsuarios = findAll();
+        return SearchUtil.search(allUsuarios, query);
     }
 }

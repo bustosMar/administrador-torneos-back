@@ -38,4 +38,8 @@ public class JugadorService {
     public void delete(Long id) {
         jugadorFacade.delete(id);
     }
+
+    public List<JugadorModel> search(String query) {
+        return jugadorFacade.search(query);
+    }
 }

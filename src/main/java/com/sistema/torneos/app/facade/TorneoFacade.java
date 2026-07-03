@@ -2,6 +2,7 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Torneo;
 import com.sistema.torneos.app.domain.repository.TorneoRepository;
+import com.sistema.torneos.app.util.SearchUtil;
 import com.sistema.torneos.app.web.model.TorneoModel;
 import com.sistema.torneos.app.web.model.mapper.TorneoMapper;
 
@@ -23,7 +24,7 @@ public class TorneoFacade {
     }
 
     public List<TorneoModel> findAll() {
-    	List<Torneo> torneos = torneoRepository.findAll();
+    	List<Torneo> torneos = torneoRepository.findAllByActivoTrue();
         return TorneoMapper.INSTANCE.toModel(torneos);
     }
 
@@ -67,5 +68,20 @@ public class TorneoFacade {
         if (torneoRepository.existsById(id)) {
             torneoRepository.deleteById(id);
         }
+    }
+
+    public List<TorneoModel> search(String query) {
+        List<TorneoModel> allTorneos = findAll();
+        return SearchUtil.search(allTorneos, query);
+    }
+
+    public List<TorneoModel> findAllActivos() {
+    	List<Torneo> torneos = torneoRepository.findAllByActivoTrue();
+        return TorneoMapper.INSTANCE.toModel(torneos);
+    }
+
+    public List<TorneoModel> searchActivos(String query) {
+        List<TorneoModel> activosTorneos = findAllActivos();
+        return SearchUtil.search(activosTorneos, query);
     }
 }

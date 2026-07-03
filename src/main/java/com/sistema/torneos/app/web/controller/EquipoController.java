@@ -27,6 +27,11 @@ public class EquipoController {
         return equipoService.findAll();
     }
 
+    @GetMapping("/search")
+    public List<EquipoModel> search(@RequestParam("q") String query) {
+        return equipoService.search(query);
+    }
+
     @GetMapping("/{id}")
     public EquipoModel getById(@PathVariable("id") Long id) {
         return equipoService.findById(id);
