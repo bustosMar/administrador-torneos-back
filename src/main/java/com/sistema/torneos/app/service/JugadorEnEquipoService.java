@@ -22,6 +22,10 @@ public class JugadorEnEquipoService {
         return jugadorEnEquipoFacade.findAll();
     }
 
+    public List<JugadorEnEquipoModel> findAllByTorneoActivo() {
+        return jugadorEnEquipoFacade.findAllByTorneoActivo();
+    }
+
     public JugadorEnEquipoModel findById(Long id) {
         return jugadorEnEquipoFacade.findById(id);
     }

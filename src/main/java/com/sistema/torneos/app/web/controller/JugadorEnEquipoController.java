@@ -19,7 +19,7 @@ public class JugadorEnEquipoController {
 
     @GetMapping
     public List<JugadorEnEquipoModel> getAll() {
-        return service.findAll();
+        return service.findAllByTorneoActivo();
     }
 
     @GetMapping("/{id}")

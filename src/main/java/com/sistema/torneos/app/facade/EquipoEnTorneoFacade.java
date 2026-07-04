@@ -4,8 +4,6 @@ import com.sistema.torneos.app.domain.entity.EquipoEnTorneo;
 import com.sistema.torneos.app.domain.repository.EquipoEnTorneoRepository;
 import com.sistema.torneos.app.web.model.EquipoEnTorneoModel;
 import com.sistema.torneos.app.web.model.mapper.EquipoEnTorneoMapper;
-import com.sistema.torneos.app.web.model.mapper.EquipoEnTorneoResponseMapper;
-import com.sistema.torneos.app.web.model.response.EquipoEnTorneoResponse;
 
 import java.util.List;
 
@@ -27,6 +25,13 @@ public class EquipoEnTorneoFacade {
     public List<EquipoEnTorneoModel> findAll() {
     	
     	 List<EquipoEnTorneo> equipos = equipoEnTorneoRepository.findAll();
+
+         return EquipoEnTorneoMapper.INSTANCE.toModel(equipos);
+    }
+
+    public List<EquipoEnTorneoModel> findAllByTorneoActivo() {
+    	
+    	 List<EquipoEnTorneo> equipos = equipoEnTorneoRepository.findAllByTorneoActivo();
 
          return EquipoEnTorneoMapper.INSTANCE.toModel(equipos);
     }

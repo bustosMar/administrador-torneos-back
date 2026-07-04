@@ -24,7 +24,7 @@ public class TorneoFacade {
     }
 
     public List<TorneoModel> findAll() {
-    	List<Torneo> torneos = torneoRepository.findAllByActivoTrue();
+    	List<Torneo> torneos = torneoRepository.findAll();
         return TorneoMapper.INSTANCE.toModel(torneos);
     }
 

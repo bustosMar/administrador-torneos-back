@@ -30,6 +30,13 @@ public class JugadorEnEquipoFacade {
         return JugadorEnEquipoMapper.INSTANCE.toModel(jugadores);
     }
 
+    public List<JugadorEnEquipoModel> findAllByTorneoActivo() {
+
+        List<JugadorEnEquipo> jugadores = jugadorEnEquipoRepository.findAllByTorneoActivo();
+
+        return JugadorEnEquipoMapper.INSTANCE.toModel(jugadores);
+    }
+
     public JugadorEnEquipoModel findById(Long id) {
         return JugadorEnEquipoMapper.INSTANCE.toModel(
                 jugadorEnEquipoRepository.findById(id).orElse(null)

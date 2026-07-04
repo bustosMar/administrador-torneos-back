@@ -26,13 +26,6 @@ public class Categoria {
     @Column(name = "edad_maxima")
     private Integer edadMaxima;
 
-    @Column(name = "descripcion", columnDefinition = "TEXT")
-    private String descripcion;
-
-    @Column(name = "permitir_inscripcion", nullable = false)
-    @Deprecated // Ya no se usa en la lógica de validación. La validación ahora usa combinaciones de categorías (Primera+Veteranos, Segunda+Veteranos)
-    private boolean permitirInscripcion = false;
-
     @Column(name = "activa", nullable = false)
     private boolean activa = true;
 }

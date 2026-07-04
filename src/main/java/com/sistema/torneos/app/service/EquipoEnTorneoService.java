@@ -23,6 +23,10 @@ public class EquipoEnTorneoService {
         return equipoEnTorneoFacade.findAll();
     }
 
+    public List<EquipoEnTorneoModel> findAllByTorneoActivo() {
+        return equipoEnTorneoFacade.findAllByTorneoActivo();
+    }
+
     public EquipoEnTorneoModel findById(Long id) {
         return equipoEnTorneoFacade.findById(id);
     }

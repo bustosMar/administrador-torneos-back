@@ -20,7 +20,7 @@ public class EquipoEnTorneoController {
 
     @GetMapping
     public List<EquipoEnTorneoModel> getAll() {
-        return service.findAll();
+        return service.findAllByTorneoActivo();
     }
 
     @GetMapping("/{id}")

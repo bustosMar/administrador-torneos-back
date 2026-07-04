@@ -18,5 +18,8 @@ public interface EquipoEnTorneoRepository extends JpaRepository<EquipoEnTorneo, 
 	List<EquipoEnTorneo> getByTorneo(@Param("torneoId") Long torneoId);
 	
 	List<EquipoEnTorneo> getByGrupoId(Long id);
+
+	@Query("SELECT e FROM EquipoEnTorneo e WHERE e.torneo.activo = true")
+	List<EquipoEnTorneo> findAllByTorneoActivo();
 	
 }

@@ -36,11 +36,6 @@ public class TorneoController {
         return torneoService.search(query);
     }
 
-    @GetMapping("/activos/search")
-    public List<TorneoModel> searchActivos(@RequestParam("q") String query) {
-        return torneoService.searchActivos(query);
-    }
-
     @GetMapping("/{id}")
     public TorneoModel getById(@PathVariable("id") Long id) {
         return torneoService.findById(id);

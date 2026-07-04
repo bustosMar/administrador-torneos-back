@@ -33,10 +33,7 @@ public class CategoriaTorneo {
 
     @Column(name = "activa", nullable = false)
     private boolean activa = true;
-
-    @Column(name = "orden")
-    private Integer orden;
-
+   
     @OneToMany(mappedBy = "categoriaTorneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<JugadorEnCategoria> jugadoresEnCategoria = new HashSet<>();
