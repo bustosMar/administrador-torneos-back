@@ -20,10 +20,10 @@ public class Categoria {
     @Column(nullable = false, length = 100, unique = true)
     private String nombre;
 
-    @Column(name = "edad_minima")
+    @Column(name = "edad_minima", nullable = true)
     private Integer edadMinima;
 
-    @Column(name = "edad_maxima")
+    @Column(name = "edad_maxima", nullable = true)
     private Integer edadMaxima;
 
     @Column(name = "activa", nullable = false)

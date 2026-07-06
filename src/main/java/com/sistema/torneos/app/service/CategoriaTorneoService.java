@@ -20,6 +20,9 @@ public class CategoriaTorneoService {
         return categoriaTorneoFacade.findAll();
     }
   
+    public List<CategoriaTorneoModel> findByTorneoId(Long torneoId) {
+        return categoriaTorneoFacade.findByTorneoId(torneoId);
+    }
 
     public CategoriaTorneoModel findById(Long id) {
         return categoriaTorneoFacade.findById(id);

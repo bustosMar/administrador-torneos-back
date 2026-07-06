@@ -16,5 +16,8 @@ public class EquipoEnTorneoModel {
 
     private Long grupo;
     private String grupoNombre;
+
+    private Long categoriaTorneo;
+    private String categoriaTorneoNombre;
     
 }

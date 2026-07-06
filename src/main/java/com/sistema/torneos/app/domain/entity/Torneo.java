@@ -41,6 +41,10 @@ public class Torneo {
     @Column(name = "activo", nullable = false)
     private boolean activo = true;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_municipio_estado")
+    private MunicipioEstado municipioEstado;
+
     @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<EquipoEnTorneo> equiposEnTorneo = new HashSet<>();

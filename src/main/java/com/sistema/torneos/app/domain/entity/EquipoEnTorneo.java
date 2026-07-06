@@ -38,6 +38,11 @@ public class EquipoEnTorneo {
     @JsonIgnore
     private Grupo grupo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_categoria_torneo")
+    @JsonIgnore
+    private CategoriaTorneo categoriaTorneo;
+
     @Column(name = "fecha_Creacion")
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate creadoEn = LocalDate.now();

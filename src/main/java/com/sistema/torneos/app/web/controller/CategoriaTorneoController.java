@@ -14,7 +14,10 @@ public class CategoriaTorneoController {
     private CategoriaTorneoService categoriaTorneoService;
 
     @GetMapping
-    public List<CategoriaTorneoModel> getAll() {
+    public List<CategoriaTorneoModel> getAll(@RequestParam(required = false) Long torneoId) {
+        if (torneoId != null) {
+            return categoriaTorneoService.findByTorneoId(torneoId);
+        }
         return categoriaTorneoService.findAll();
     }
 

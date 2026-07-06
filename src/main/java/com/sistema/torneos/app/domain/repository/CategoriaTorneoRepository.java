@@ -19,7 +19,10 @@ public interface CategoriaTorneoRepository extends JpaRepository<CategoriaTorneo
     
     List<CategoriaTorneo> findByTorneo(Torneo torneo);
     
-    Optional<CategoriaTorneo> findByTorneoIdAndCategoriaId(Long torneoId, Long categoriaId);
+    List<CategoriaTorneo> findByTorneoIdAndCategoriaId(Long torneoId, Long categoriaId);
     
-    Optional<CategoriaTorneo> findByTorneoIdAndCategoriaNombre(Long torneoId, String categoriaNombre);
+    List<CategoriaTorneo> findByTorneoIdAndCategoriaNombre(Long torneoId, String categoriaNombre);
+    
+    @Query("SELECT c FROM CategoriaTorneo c WHERE c.torneo.id = :torneoId")
+    List<CategoriaTorneo> findByTorneoId(Long torneoId);
 }

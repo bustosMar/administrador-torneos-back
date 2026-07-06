@@ -55,10 +55,26 @@ public class CategoriaValidationService {
             );
         }
 
-        // Validación 2: Validar restricciones de edad
-        validarEdadJugador(jugador, categoria);
+        // Validación 2: Validar edad SOLO si tiene edadMinima o edadMaxima
+        boolean tieneEdadMinima = categoria.getEdadMinima() != null;
+        boolean tieneEdadMaxima = categoria.getEdadMaxima() != null;
 
-        // Validación 3: Validar combinaciones permitidas (máximo 2, pero no Primera+Segunda)
+        if (tieneEdadMinima || tieneEdadMaxima) {
+            int edadJugador = calcularEdadJugador(jugador.getFechaNacimiento());
+
+            if (tieneEdadMinima && edadJugador < categoria.getEdadMinima()) {
+                throw new CategoriaValidationException(
+                    "Jugador no puede jugar en la categoría '" + categoria.getNombre() + "'"
+                );
+            }
+            if (tieneEdadMaxima && edadJugador > categoria.getEdadMaxima()) {
+                throw new CategoriaValidationException(
+                    "Jugador no puede jugar en la categoría '" + categoria.getNombre() + "'"
+                );
+            }
+        }
+
+        // Validación 3: Combinaciones permitidas
         validarCombinacionesCategorias(jugador, categoriaTorneo);
     }
 
@@ -70,17 +86,13 @@ public class CategoriaValidationService {
 
         if (categoria.getEdadMinima() != null && edadJugador < categoria.getEdadMinima()) {
             throw new CategoriaValidationException(
-                "El jugador no cumple con la edad mínima requerida para '" + categoria.getNombre() + "'. " +
-                "Edad mínima: " + categoria.getEdadMinima() + " años, " +
-                "edad del jugador: " + edadJugador + " años"
+                "Jugador no puede jugar en la categoría '" + categoria.getNombre() + "'"
             );
         }
 
         if (categoria.getEdadMaxima() != null && edadJugador > categoria.getEdadMaxima()) {
             throw new CategoriaValidationException(
-                "El jugador supera la edad máxima permitida para '" + categoria.getNombre() + "'. " +
-                "Edad máxima: " + categoria.getEdadMaxima() + " años, " +
-                "edad del jugador: " + edadJugador + " años"
+                "Jugador no puede jugar en la categoría '" + categoria.getNombre() + "'"
             );
         }
     }
@@ -93,7 +105,6 @@ public class CategoriaValidationService {
      * - Máximo 2 categorías por torneo
      */
     private void validarCombinacionesCategorias(Jugador jugador, CategoriaTorneo categoriaTorneo) {
-        // Obtener inscripciones activas en este torneo
         List<JugadorEnCategoria> inscripcionesActivas = jugadorEnCategoriaRepository
             .findByJugadorIdAndCategoriaTorneoTorneoIdAndActivoTrue(
                 jugador.getId(),
@@ -102,25 +113,31 @@ public class CategoriaValidationService {
 
         Categoria categoriaNueva = categoriaTorneo.getCategoria();
         String nombreNueva = categoriaNueva.getNombre().toLowerCase();
+        boolean nuevaEsVeterano = nombreNueva.contains("veteran");
 
         // Si ya tiene 2 categorías, no puede agregar más
         if (inscripcionesActivas.size() >= 2) {
             throw new CategoriaValidationException(
-                "El jugador '" + jugador.getNombre() + " " + jugador.getApellido() + 
-                "' ya tiene 2 categorías en este torneo. Máximo permitido: 2 categorías por torneo."
+                "El jugador ya tiene 2 categorías en este torneo. Máximo permitido: 2 categorías."
             );
         }
 
-        // Validar combinaciones prohibidas
         for (JugadorEnCategoria inscripcion : inscripcionesActivas) {
             String nombreExistente = inscripcion.getCategoriaTorneo().getCategoria().getNombre().toLowerCase();
-            
-            // Verificar si intenta Primera + Segunda (PROHIBIDO)
-            if ((nombreNueva.contains("primera") && nombreExistente.contains("segunda")) ||
-                (nombreNueva.contains("segunda") && nombreExistente.contains("primera"))) {
+            boolean existenteEsVeterano = nombreExistente.contains("veteran");
+
+            // Si ya está en una categoría normal (no veterano) e intenta entrar a otra normal (no veterano)
+            if (!nuevaEsVeterano && !existenteEsVeterano) {
                 throw new CategoriaValidationException(
-                    "Combinación no permitida: No se puede estar en Primera y Segunda simultáneamente. " +
-                    "Combinaciones válidas: (Primera + Veteranos) o (Segunda + Veteranos)"
+                    "El jugador ya está inscrito en '" + inscripcion.getCategoriaTorneo().getCategoria().getNombre() + "'. " +
+                    "Solo puede agregar Veteranos como segunda categoría."
+                );
+            }
+
+            // Si ya está en Veteranos e intenta entrar a otro Veteranos
+            if (nuevaEsVeterano && existenteEsVeterano) {
+                throw new CategoriaValidationException(
+                    "El jugador ya está inscrito en Veteranos."
                 );
             }
         }

@@ -27,6 +27,10 @@ public class CategoriaTorneoFacade {
         return CategoriaTorneoMapper.INSTANCE.toModel(categoriasTorneo);
     }
   
+    public List<CategoriaTorneoModel> findByTorneoId(Long torneoId) {
+        List<CategoriaTorneo> categoriasTorneo = categoriaTorneoRepository.findByTorneoId(torneoId);
+        return CategoriaTorneoMapper.INSTANCE.toModel(categoriasTorneo);
+    }
 
     public CategoriaTorneoModel findById(Long id) {
         return CategoriaTorneoMapper.INSTANCE.toModel(

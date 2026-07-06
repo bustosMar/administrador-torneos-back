@@ -18,5 +18,9 @@ public class JugadorEnEquipoModel {
     
     private Long torneo;
     private String torneoNombre;
+    
+    private Long categoriaTorneo;
+    private String categoriaTorneoNombre;
+    
     private boolean activo;
 }

@@ -21,6 +21,8 @@ public interface EquipoEnTorneoMapper extends EntityMapper<EquipoEnTorneoModel, 
 
     @Mapping(source = "grupo.id", target = "grupo")
     @Mapping(source = "grupo.nombre", target = "grupoNombre")
+    @Mapping(source = "categoriaTorneo.id", target = "categoriaTorneo")
+    @Mapping(source = "categoriaTorneo.categoria.nombre", target = "categoriaTorneoNombre")
     EquipoEnTorneoModel toModel(EquipoEnTorneo entity);
     
     @Override
@@ -28,6 +30,7 @@ public interface EquipoEnTorneoMapper extends EntityMapper<EquipoEnTorneoModel, 
     @Mapping(source = "equipo", target = "equipo.id")
     @Mapping(source = "torneo", target = "torneo.id")
     @Mapping(source = "grupo", target = "grupo.id")
+    @Mapping(source = "categoriaTorneo", target = "categoriaTorneo.id")
     EquipoEnTorneo toEntity(EquipoEnTorneoModel model);
     
 }

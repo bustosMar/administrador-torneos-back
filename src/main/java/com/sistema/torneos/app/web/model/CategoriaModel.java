@@ -11,9 +11,7 @@ public class CategoriaModel {
     
     private String nombre;
     
-    private Integer edadMinima;
-    
-    private Integer edadMaxima;
-    
+    private Integer edadMinima;  // nullable - sin restriccion minima si es null
 
+    private Integer edadMaxima;  // nullable - sin restriccion maxima si es null
 }

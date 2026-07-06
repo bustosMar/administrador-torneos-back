@@ -21,4 +21,9 @@ public class TorneoModel {
 
     private boolean activo = true;
 
+    private Long municipioEstado;
+    
+    private String estadoNombre;
+    private String municipioNombre;
+
 }

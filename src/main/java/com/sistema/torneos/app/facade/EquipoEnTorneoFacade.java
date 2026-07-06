@@ -43,12 +43,21 @@ public class EquipoEnTorneoFacade {
     @Transactional
     public EquipoEnTorneoModel create(EquipoEnTorneoModel equipoEnTorneo) {
     	
-    	 EquipoEnTorneo equipo = null;
-    	 
-    	 equipo = equipoEnTorneoRepository.findByEquipo_IdAndTorneo_Id(equipoEnTorneo.getEquipo(), equipoEnTorneo.getTorneo());
+    	 // Validar que tenga categoría asignada
+    	 if (equipoEnTorneo.getCategoriaTorneo() == null) {
+    	     throw new RuntimeException("El equipo debe tener una categoría asignada");
+    	 }
     	
-    	 if (equipo!=null) {
-    	 	 throw new RuntimeException("Ya existe un equipo con ese nombre en este torneo");
+    	 // Validar que no exista con la misma combinación: equipo, torneo, categoría y grupo
+    	 EquipoEnTorneo equipoExistente = equipoEnTorneoRepository.findByEquipo_IdAndTorneo_IdAndCategoriaTorneo_IdAndGrupo_Id(
+    	 	 equipoEnTorneo.getEquipo(),
+    	 	 equipoEnTorneo.getTorneo(),
+    	 	 equipoEnTorneo.getCategoriaTorneo(),
+    	 	 equipoEnTorneo.getGrupo()
+    	 );
+    	 
+    	 if (equipoExistente != null) {
+    	 	 throw new RuntimeException("El equipo ya existe en este torneo, categoría y grupo");
     	 }
     	
     	 return EquipoEnTorneoMapper.INSTANCE.toModel(equipoEnTorneoRepository.save(EquipoEnTorneoMapper.INSTANCE.toEntity(equipoEnTorneo)));

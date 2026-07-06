@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface EquipoEnTorneoRepository extends JpaRepository<EquipoEnTorneo, Long> {
 	
-	EquipoEnTorneo findByEquipo_IdAndTorneo_Id(Long idEquipo, Long idTorneo);
+	List<EquipoEnTorneo> findByEquipo_IdAndTorneo_Id(Long equipoId, Long torneoId);
 	
 	EquipoEnTorneo findByEquipo_IdAndTorneo_IdAndGrupo_Id(Long equipoId,Long torneoId,Long grupoId);
 
@@ -21,5 +21,9 @@ public interface EquipoEnTorneoRepository extends JpaRepository<EquipoEnTorneo, 
 
 	@Query("SELECT e FROM EquipoEnTorneo e WHERE e.torneo.activo = true")
 	List<EquipoEnTorneo> findAllByTorneoActivo();
+	
+	EquipoEnTorneo findByEquipo_IdAndTorneo_IdAndCategoriaTorneo_IdAndGrupo_Id(Long equipoId, Long torneoId, Long categoriaTorneoId, Long grupoId);
+	
+	EquipoEnTorneo findByEquipo_IdAndTorneo_IdAndCategoriaTorneo_Id(Long equipoId, Long torneoId, Long categoriaTorneoId);
 	
 }
