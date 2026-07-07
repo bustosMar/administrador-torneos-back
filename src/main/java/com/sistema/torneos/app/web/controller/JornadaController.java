@@ -25,10 +25,15 @@ public class JornadaController {
 	    /**
 	     * 1. Genera calendario (solo jornadas)
 	     */
-	    @PostMapping("/{idTorneo}/calendario")
-	    public List<JornadaResponse> generarCalendario(@PathVariable Long idTorneo) {
-	        return jornadaService.generarCalendario(idTorneo);
-	    }
+		 @PostMapping("/{idTorneo}/{idCategoria}/calendario")
+		 public List<JornadaResponse> generarCalendario(
+		         @PathVariable Long idTorneo,
+		         @PathVariable Long idCategoria) {
+	
+		     return jornadaService.generarCalendario(
+		             idTorneo,
+		             idCategoria);
+		 }
 
 	    /**
 	     * 2. Activa siguiente jornada (crea partidos)

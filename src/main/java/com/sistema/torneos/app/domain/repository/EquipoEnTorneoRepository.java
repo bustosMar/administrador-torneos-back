@@ -26,4 +26,7 @@ public interface EquipoEnTorneoRepository extends JpaRepository<EquipoEnTorneo, 
 	
 	EquipoEnTorneo findByEquipo_IdAndTorneo_IdAndCategoriaTorneo_Id(Long equipoId, Long torneoId, Long categoriaTorneoId);
 	
+	List<EquipoEnTorneo>  findByTorneo_IdAndCategoriaTorneo_Id(Long torneoId, Long categoriaTorneoId);
+	
+	
 }

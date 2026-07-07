@@ -79,27 +79,23 @@ public class JugadorEnEquipoFacade {
     	if (equipoEnTorneo == null || equipoEnTorneo.getCategoriaTorneo() == null) {
     	    throw new RuntimeException("El equipo no tiene una categoría asignada en este torneo");
     	}
-    	
-    	// Validar que no esté activo en la categoría específica
-    	if (jugadorEnCategoriaRepository.existsByJugadorIdAndCategoriaTorneoId(
-    	    jugadorEnEquipo.getJugador(),
-    	    equipoEnTorneo.getCategoriaTorneo().getId()
-    	)) {
-    	    throw new RuntimeException("Jugador ya está inscrito en esta categoría");
-    	}
   
     	// Guardar el JugadorEnEquipo
+    	// NOTA: Permitimos múltiples JugadorEnEquipo del mismo jugador en el mismo torneo
+    	// si son con diferentes categorías (Primera + Veteranos)
     	JugadorEnEquipo jugadorEnEquipoGuardado = jugadorEnEquipoRepository.save(
             JugadorEnEquipoMapper.INSTANCE.toEntity(jugadorEnEquipo)
         );
 
     	// Inscribir al jugador en la categoría del equipo
+    	// AQUÍ se valida que cumpla todas las reglas (edad, combinaciones, etc.)
     	try {
     	    jugadorEnCategoriaService.inscribirJugadorEnCategoria(
     	        jugadorEnEquipo.getJugador(),
     	        equipoEnTorneo.getCategoriaTorneo().getId()
     	    );
     	} catch (CategoriaValidationException e) {
+    	    // Si falla la validación, eliminar el JugadorEnEquipo guardado (ATOMIC)
     	    jugadorEnEquipoRepository.delete(jugadorEnEquipoGuardado);
     	    throw new RuntimeException(e.getMessage());
     	}
@@ -132,25 +128,42 @@ public class JugadorEnEquipoFacade {
      * Enriquece el modelo con información de categoría del EquipoEnTorneo
      */
     private JugadorEnEquipoModel enriquecerConCategoria(JugadorEnEquipo entity) {
-        JugadorEnEquipoModel model = JugadorEnEquipoMapper.INSTANCE.toModel(entity);
-        
-        // Obtener la categoría desde EquipoEnTorneo
-        if (entity.getEquipo() != null && entity.getTorneo() != null) {
-            List<EquipoEnTorneo> equiposEnTorneo = equipoEnTorneoRepository.findByEquipo_IdAndTorneo_Id(
-                entity.getEquipo().getId(),
-                entity.getTorneo().getId()
-            );
-            
-            // Si hay registros, usar el primero (en caso de múltiples categorías)
-            if (equiposEnTorneo != null && !equiposEnTorneo.isEmpty()) {
-                EquipoEnTorneo equipoEnTorneo = equiposEnTorneo.get(0);
-                if (equipoEnTorneo.getCategoriaTorneo() != null) {
-                    model.setCategoriaTorneo(equipoEnTorneo.getCategoriaTorneo().getId());
-                    model.setCategoriaTorneoNombre(equipoEnTorneo.getCategoriaTorneo().getCategoria().getNombre());
-                }
-            }
+
+        JugadorEnEquipoModel model =
+                JugadorEnEquipoMapper.INSTANCE.toModel(entity);
+
+        if (entity.getEquipo() == null || entity.getTorneo() == null) {
+            return model;
         }
-        
+
+        // Si el model ya trae categoriaTorneo, buscar exactamente esa categoría
+        if (model.getCategoriaTorneo() != null) {
+
+            EquipoEnTorneo equipoEnTorneo =
+                    equipoEnTorneoRepository
+                            .findByEquipo_IdAndTorneo_IdAndCategoriaTorneo_Id(
+                                    entity.getEquipo().getId(),
+                                    entity.getTorneo().getId(),
+                                    model.getCategoriaTorneo()
+                            );
+
+            if (equipoEnTorneo != null &&
+                    equipoEnTorneo.getCategoriaTorneo() != null) {
+
+                model.setCategoriaTorneo(
+                        equipoEnTorneo.getCategoriaTorneo().getId()
+                );
+
+                model.setCategoriaTorneoNombre(
+                        equipoEnTorneo.getCategoriaTorneo()
+                                .getCategoria()
+                                .getNombre()
+                );
+            }
+
+            return model;
+        }
+
         return model;
     }
 }

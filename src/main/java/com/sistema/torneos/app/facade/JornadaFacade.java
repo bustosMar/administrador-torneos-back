@@ -32,11 +32,7 @@ public class JornadaFacade {
     // 1. GENERAR CALENDARIO (SOLO JORNADAS)
     // =====================================================
     @Transactional
-    public List<JornadaResponse> crearJornadas(Long idTorneo) {
-
-        // =====================================================
-        // 1. ELIMINAR JORNADAS PROGRAMADAS EXISTENTES
-        // =====================================================
+    public List<JornadaResponse> crearJornadas(Long idTorneo, Long idCategoria) {
 
         List<Jornada> jornadasProgramadas =
                 jornadaRepository.findByTorneoIdAndEstado(
@@ -48,8 +44,7 @@ public class JornadaFacade {
             for (Jornada jornada : jornadasProgramadas) {
 
                 List<Partido> partidos =
-                        partidoRepository.findByJornadaId(
-                                jornada.getId());
+                        partidoRepository.findByJornadaId(jornada.getId());
 
                 if (!partidos.isEmpty()) {
                     partidoRepository.deleteAll(partidos);
@@ -57,37 +52,25 @@ public class JornadaFacade {
             }
 
             jornadaRepository.deleteAll(jornadasProgramadas);
-            
             reajustarSecuencia();
-            
         }
-
-        // =====================================================
-        // 2. OBTENER CUÁNTAS JORNADAS YA FUERON JUGADAS
-        // =====================================================
 
         List<Jornada> jornadasJugadas =
                 jornadaRepository.findByTorneoIdAndEstado(
                         idTorneo,
                         "JUGADA");
 
-        int numeroInicial =
-                jornadasJugadas.size() + 1;
+        int numeroInicial = jornadasJugadas.size() + 1;
 
-        // =====================================================
-        // 3. OBTENER EQUIPOS DEL TORNEO
-        // =====================================================
-
+        // AQUÍ SE OBTIENEN POR TORNEO Y CATEGORÍA
         List<EquipoEnTorneo> equipos =
-                equipoEnTorneoRepository.getByTorneo(idTorneo);
+                equipoEnTorneoRepository.findByTorneo_IdAndCategoriaTorneo_Id(
+                        idTorneo,
+                        idCategoria);
 
         if (equipos == null || equipos.isEmpty()) {
             return new ArrayList<>();
         }
-
-        // =====================================================
-        // 4. AGRUPAR POR GRUPO
-        // =====================================================
 
         Map<Grupo, List<EquipoEnTorneo>> porGrupo =
                 equipos.stream()
@@ -96,10 +79,6 @@ public class JornadaFacade {
 
         List<Jornada> nuevasJornadas =
                 new ArrayList<>();
-
-        // =====================================================
-        // 5. GENERAR CALENDARIO POR GRUPO
-        // =====================================================
 
         for (Map.Entry<Grupo, List<EquipoEnTorneo>> entry :
                 porGrupo.entrySet()) {
@@ -121,62 +100,30 @@ public class JornadaFacade {
 
             int numeroJornada = numeroInicial;
 
-            for (List<EquipoEnTorneo> ronda :
-                    calendario) {
+            for (List<EquipoEnTorneo> ronda : calendario) {
 
-                Jornada jornada =
-                        new Jornada();
+                Jornada jornada = new Jornada();
 
-                jornada.setNumeroJornada(
-                        numeroJornada++);
-
-                jornada.setEstado(
-                        "PROGRAMADA");
-
-                jornada.setTorneo(
-                        torneo);
-
-                jornada.setGrupo(
-                        grupo);
+                jornada.setNumeroJornada(numeroJornada++);
+                jornada.setEstado("PROGRAMADA");
+                jornada.setTorneo(torneo);
+                jornada.setGrupo(grupo);
 
                 jornada.setFechaProgramada(
                         calcularFechaJornada(
                                 numeroJornada - numeroInicial));
 
-                nuevasJornadas.add(
-                        jornada);
+                nuevasJornadas.add(jornada);
             }
         }
 
-        // =====================================================
-        // 6. GUARDAR JORNADAS
-        // =====================================================
-
-        jornadaRepository.saveAll(
-                nuevasJornadas);
-
-        // =====================================================
-        // 7. RESPUESTA
-        // =====================================================
+        jornadaRepository.saveAll(nuevasJornadas);
 
         return nuevasJornadas.stream()
                 .map(this::mapJornadaSinPartidos)
                 .toList();
     }
- 
     
-    private LocalDate calcularFechaJornada(
-            int semanas) {
-
-        LocalDate primerDomingo =
-                LocalDate.now()
-                        .with(
-                            TemporalAdjusters.next(
-                                    DayOfWeek.SUNDAY));
-
-        return primerDomingo.plusWeeks(
-                semanas);
-    }
         
 
    
@@ -485,6 +432,17 @@ public class JornadaFacade {
         }
 
         return ronda;
+    }
+    
+    private LocalDate calcularFechaJornada(int semanas) {
+
+        LocalDate primerDomingo =
+                LocalDate.now()
+                        .with(
+                            TemporalAdjusters.next(
+                                    DayOfWeek.SUNDAY));
+
+        return primerDomingo.plusWeeks(semanas);
     }
  
 }

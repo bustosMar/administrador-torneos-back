@@ -115,6 +115,14 @@ public class CategoriaValidationService {
         String nombreNueva = categoriaNueva.getNombre().toLowerCase();
         boolean nuevaEsVeterano = nombreNueva.contains("veteran");
 
+        System.out.println("DEBUG validarCombinacionesCategorias:");
+        System.out.println("  Jugador ID: " + jugador.getId());
+        System.out.println("  Nueva categoría: " + nombreNueva + " (Veteranos: " + nuevaEsVeterano + ")");
+        System.out.println("  Inscripciones activas encontradas: " + inscripcionesActivas.size());
+        for (JugadorEnCategoria insc : inscripcionesActivas) {
+            System.out.println("    - " + insc.getCategoriaTorneo().getCategoria().getNombre());
+        }
+
         // Si ya tiene 2 categorías, no puede agregar más
         if (inscripcionesActivas.size() >= 2) {
             throw new CategoriaValidationException(
@@ -122,25 +130,55 @@ public class CategoriaValidationService {
             );
         }
 
+        // Si no tiene ninguna inscripción activa, permitir (es la primera)
+        if (inscripcionesActivas.isEmpty()) {
+            System.out.println("  → Primera inscripción en este torneo, PERMITIDA");
+            return;
+        }
+
+        // Revisar cada inscripción activa para validar combinaciones
         for (JugadorEnCategoria inscripcion : inscripcionesActivas) {
             String nombreExistente = inscripcion.getCategoriaTorneo().getCategoria().getNombre().toLowerCase();
             boolean existenteEsVeterano = nombreExistente.contains("veteran");
 
-            // Si ya está en una categoría normal (no veterano) e intenta entrar a otra normal (no veterano)
+            System.out.println("  Validando contra: " + nombreExistente + " (Veteranos: " + existenteEsVeterano + ")");
+
+            // Caso 1: Nueva es normal + Existente es normal = NO PERMITIR
+            // Ejemplo: Primera + Segunda = ERROR
             if (!nuevaEsVeterano && !existenteEsVeterano) {
+                System.out.println("    → RECHAZAR: Dos categorías normales (Primera+Segunda)");
                 throw new CategoriaValidationException(
-                    "El jugador ya está inscrito en '" + inscripcion.getCategoriaTorneo().getCategoria().getNombre() + "'. " +
-                    "Solo puede agregar Veteranos como segunda categoría."
+                    "El jugador ya está inscrito en '" + nombreExistente + "'. " +
+                    "No puede combinar Primera con Segunda. Solo puede agregar Veteranos como segunda categoría."
                 );
             }
 
-            // Si ya está en Veteranos e intenta entrar a otro Veteranos
+            // Caso 2: Nueva es Veteranos + Existente es Veteranos = NO PERMITIR
+            // No puede haber dos Veteranos
             if (nuevaEsVeterano && existenteEsVeterano) {
+                System.out.println("    → RECHAZAR: Dos categorías Veteranos");
                 throw new CategoriaValidationException(
-                    "El jugador ya está inscrito en Veteranos."
+                    "El jugador ya está inscrito en Veteranos. No puede tener dos categorías Veteranos."
                 );
             }
+
+            // Caso 3: Nueva es normal + Existente es Veteranos = NO PERMITIR
+            // Si ya está en Veteranos, no puede agregar Primera o Segunda
+            if (!nuevaEsVeterano && existenteEsVeterano) {
+                System.out.println("    → RECHAZAR: Normal después de Veteranos");
+                throw new CategoriaValidationException(
+                    "El jugador ya está inscrito en Veteranos. No puede agregar " + nombreNueva + 
+                    " como segunda categoría si ya tiene Veteranos."
+                );
+            }
+
+            // Caso 4: Nueva es Veteranos + Existente es normal = PERMITIR
+            // Es decir: Primera + Veteranos ✅ o Segunda + Veteranos ✅
+            // Este caso NO lanza excepción, por lo que continúa normalmente
+            System.out.println("    → PERMITIR: Normal + Veteranos válido");
         }
+        
+        System.out.println("  → Combinación de categorías VÁLIDA");
     }
 
     /**

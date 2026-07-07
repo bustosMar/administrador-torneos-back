@@ -37,6 +37,11 @@ public class JugadorEnEquipo {
     @JsonIgnore
     private Torneo torneo;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_categoria_torneo", nullable = false)
+    @JsonIgnore
+    private CategoriaTorneo categoriaTorneo;
+    
     @Column(name = "activo")
     private boolean activo;
 

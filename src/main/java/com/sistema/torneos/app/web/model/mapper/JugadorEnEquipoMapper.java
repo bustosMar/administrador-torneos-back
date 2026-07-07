@@ -24,6 +24,9 @@ public interface JugadorEnEquipoMapper extends EntityMapper<JugadorEnEquipoModel
 
     @Mapping(source = "torneo.id", target = "torneo")
     @Mapping(source = "torneo.nombre", target = "torneoNombre")
+    
+    @Mapping(source = "categoriaTorneo.id", target = "categoriaTorneo")
+    @Mapping(source = "categoriaTorneo.categoria.nombre", target = "categoriaTorneoNombre")
     JugadorEnEquipoModel toModel(JugadorEnEquipo entity);
 
     @Override
@@ -31,5 +34,6 @@ public interface JugadorEnEquipoMapper extends EntityMapper<JugadorEnEquipoModel
     @Mapping(source = "jugador", target = "jugador.id")
     @Mapping(source = "equipo", target = "equipo.id")
     @Mapping(source = "torneo", target = "torneo.id")
+    @Mapping(source = "categoriaTorneo", target = "categoriaTorneo.id")
     JugadorEnEquipo toEntity(JugadorEnEquipoModel model);
 }

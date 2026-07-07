@@ -14,8 +14,8 @@ public class JornadaService {
     @Autowired
     private JornadaFacade jornadaFacade;
 
-    public List<JornadaResponse> generarCalendario(Long idTorneo) {
-        return jornadaFacade.crearJornadas(idTorneo);
+    public List<JornadaResponse> generarCalendario(Long idTorneo, Long idCategoria) {
+        return jornadaFacade.crearJornadas(idTorneo, idCategoria);
     }
 
     public JornadaResponse generarSiguienteJornada(Long idTorneo) {
