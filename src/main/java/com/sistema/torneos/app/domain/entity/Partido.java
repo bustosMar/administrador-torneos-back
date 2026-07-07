@@ -58,8 +58,10 @@ public class Partido {
     @OneToMany(mappedBy = "partido", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<PresenciaPartido> presencias = new HashSet<>();
-
+    
     @OneToMany(mappedBy = "partido", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Gol> goles = new HashSet<>();
+    
+    private boolean jugado;
 }

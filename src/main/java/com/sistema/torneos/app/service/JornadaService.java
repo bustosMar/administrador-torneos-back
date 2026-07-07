@@ -25,5 +25,15 @@ public class JornadaService {
     public JornadaResponse obtenerJornadaActual(Long idTorneo) {
         return jornadaFacade.obtenerJornadaActual(idTorneo);
     }
+    
+    public JornadaResponse previsualizarSiguienteJornada(
+            Long idTorneo,
+            Long idCategoria) {
+
+        return jornadaFacade.previsualizarSiguienteJornada(
+                idTorneo,
+                idCategoria);
+    }
+    
 }
 

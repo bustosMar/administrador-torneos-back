@@ -444,5 +444,75 @@ public class JornadaFacade {
 
         return primerDomingo.plusWeeks(semanas);
     }
+    
+ // =====================================================
+ // PREVISUALIZAR SIGUIENTE JORNADA SIN GUARDAR PARTIDOS
+ // =====================================================
+ @Transactional(readOnly = true)
+ public JornadaResponse previsualizarSiguienteJornada(Long idTorneo, Long idCategoria) {
+
+     Jornada jornada = jornadaRepository
+             .findFirstByTorneoIdAndEstado(idTorneo, "PROGRAMADA");
+
+     if (jornada == null) {
+         throw new RuntimeException("No hay jornadas disponibles");
+     }
+
+     List<EquipoEnTorneo> equipos =
+             equipoEnTorneoRepository.findByTorneo_IdAndCategoriaTorneo_Id(idTorneo,idCategoria);
+
+     List<Partido> partidosExistentesBD =
+             partidoRepository.findAll();
+
+     Set<String> partidosExistentes =
+             partidosExistentesBD.stream()
+                     .map(p -> {
+
+                         Long a = p.getEquipoLocal().getId();
+                         Long b = p.getEquipoVisitante().getId();
+
+                         return Math.min(a, b)
+                                 + "-"
+                                 + Math.max(a, b);
+
+                     })
+                     .collect(Collectors.toSet());
+
+     List<EquipoEnTorneo> ronda =
+             generarRondaSinRepetidos(
+                     equipos,
+                     partidosExistentes);
+
+     List<Partido> partidos = new ArrayList<>();
+
+     for (int i = 0; i < ronda.size(); i += 2) {
+
+         EquipoEnTorneo local = ronda.get(i);
+         EquipoEnTorneo visitante = ronda.get(i + 1);
+
+         if (local == null || visitante == null) {
+             continue;
+         }
+
+         Partido p = new Partido();
+
+         // Se arma el objeto, pero NO se guarda
+         p.setJornada(jornada);
+         p.setEquipoLocal(local);
+         p.setEquipoVisitante(visitante);
+         p.setGrupo(local.getGrupo());
+         p.setFecha(jornada.getFechaProgramada());
+         p.setHora("09:00");
+         p.setGoles(new HashSet<>());
+         p.setPresencias(new HashSet<>());
+
+         partidos.add(p);
+     }
+     JornadaResponse jornadas = new JornadaResponse();
+     
+     jornadas = mapJornada(jornada, partidos);
+     
+     return mapJornada(jornada, partidos);
+ }
  
 }

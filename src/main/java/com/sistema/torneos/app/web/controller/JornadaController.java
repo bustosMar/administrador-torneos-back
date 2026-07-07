@@ -50,4 +50,14 @@ public class JornadaController {
 	    public JornadaResponse actual(@PathVariable Long idTorneo) {
 	        return jornadaService.obtenerJornadaActual(idTorneo);
 	    }
+	    
+	    @GetMapping("/{idTorneo}/{idCategoria}/previsualizar-partidos")
+	    public JornadaResponse previsualizarPartidos(
+	            @PathVariable Long idTorneo,
+	            @PathVariable Long idCategoria) {
+
+	        return jornadaService.previsualizarSiguienteJornada(
+	                idTorneo,
+	                idCategoria);
+	    }
 }
