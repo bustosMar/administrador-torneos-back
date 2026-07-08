@@ -1,8 +1,8 @@
 package com.sistema.torneos.app.web.controller;
 
-import com.sistema.torneos.app.domain.entity.Partido;
+
 import com.sistema.torneos.app.service.PartidoService;
-import com.sistema.torneos.app.web.model.request.PartidoRequest;
+import com.sistema.torneos.app.web.model.PartidoModel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,22 +22,22 @@ public class PartidoController {
     }
 
     @GetMapping
-    public List<Partido> getAll() {
+    public List<PartidoModel> getAll() {
         return partidoService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Partido getById(@PathVariable("id") Long id) {
+    public PartidoModel getById(@PathVariable("id") Long id) {
         return partidoService.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Partido> create(@RequestBody Partido partido) {
+    public ResponseEntity<PartidoModel> create(@RequestBody PartidoModel partido) {
         return ResponseEntity.ok(partidoService.create(partido));
     }
 
     @PutMapping("/{id}")
-    public Partido update(@PathVariable("id") Long id, @RequestBody Partido partido) {
+    public PartidoModel update(@PathVariable("id") Long id, @RequestBody PartidoModel partido) {
         return partidoService.update(id, partido);
     }
 
@@ -48,7 +48,7 @@ public class PartidoController {
     }
     
     @PostMapping("/jornada")
-    public ResponseEntity<Void> partidos(@RequestBody List<PartidoRequest> partido) {
+    public ResponseEntity<Void> partidos(@RequestBody List<PartidoModel> partido) {
     	partidoService.createPartido(partido);
     	return ResponseEntity.noContent().build();
     }

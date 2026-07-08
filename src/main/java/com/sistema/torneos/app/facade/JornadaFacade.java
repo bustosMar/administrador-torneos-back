@@ -153,77 +153,6 @@ public class JornadaFacade {
         return dto;
     }
 
-
-    // =====================================================
-    // 2. ACTIVAR SIGUIENTE JORNADA (CREA PARTIDOS)
-    // =====================================================
-    public JornadaResponse activarSiguienteJornada(Long idTorneo) {
-    	
-    	Jornada jornada = jornadaRepository
-                .findFirstByTorneoIdAndEstado(idTorneo, "PROGRAMADA");
-
-        if (jornada == null) {
-            throw new RuntimeException("No hay jornadas disponibles");
-        }
-
-        List<EquipoEnTorneo> equipos =
-                equipoEnTorneoRepository.getByTorneo(idTorneo);
-
-        List<Partido> partidosExistentesBD =
-                partidoRepository.findAll();
-
-        Set<String> partidosExistentes =
-                partidosExistentesBD.stream()
-                        .map(p -> {
-
-                            Long a = p.getEquipoLocal().getId();
-                            Long b = p.getEquipoVisitante().getId();
-
-                            return Math.min(a, b)
-                                    + "-"
-                                    + Math.max(a, b);
-
-                        })
-                        .collect(Collectors.toSet());
-
-        List<EquipoEnTorneo> ronda =
-                generarRondaSinRepetidos(
-                        equipos,
-                        partidosExistentes);
-
-        List<Partido> partidos = new ArrayList<>();
-
-        for (int i = 0; i < ronda.size(); i += 2) {
-
-            EquipoEnTorneo local = ronda.get(i);
-            EquipoEnTorneo visitante = ronda.get(i + 1);
-
-            if (local == null || visitante == null) {
-                continue;
-            }
-
-            Partido p = new Partido();
-            p.setJornada(jornada);
-            p.setEquipoLocal(local);
-            p.setEquipoVisitante(visitante);
-            p.setGrupo(local.getGrupo());
-
-            p.setFecha(jornada.getFechaProgramada());
-            p.setHora("09:00"); // puedes parametrizarlo
-            p.setGoles(new HashSet<>());
-            p.setPresencias(new HashSet<>());
-
-            partidos.add(p);
-        }
-
-        partidoRepository.saveAll(partidos);
-
-        jornada.setEstado("EN_CURSO");
-        jornadaRepository.save(jornada);
-
-        return mapJornada(jornada, partidos);
-    }
-
     // =====================================================
     // 3. OBTENER JORNADA ACTUAL
     // =====================================================
@@ -508,10 +437,7 @@ public class JornadaFacade {
 
          partidos.add(p);
      }
-     JornadaResponse jornadas = new JornadaResponse();
-     
-     jornadas = mapJornada(jornada, partidos);
-     
+       
      return mapJornada(jornada, partidos);
  }
  

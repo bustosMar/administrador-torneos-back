@@ -1,8 +1,7 @@
 package com.sistema.torneos.app.service;
 
-import com.sistema.torneos.app.domain.entity.Partido;
 import com.sistema.torneos.app.facade.PartidoFacade;
-import com.sistema.torneos.app.web.model.request.PartidoRequest;
+import com.sistema.torneos.app.web.model.PartidoModel;
 
 import java.util.List;
 
@@ -19,19 +18,19 @@ public class PartidoService {
         this.partidoFacade = partidoFacade;
     }
 
-    public List<Partido> findAll() {
+    public List<PartidoModel> findAll() {
         return partidoFacade.findAll();
     }
 
-    public Partido findById(Long id) {
+    public PartidoModel findById(Long id) {
         return partidoFacade.findById(id);
     }
 
-    public Partido create(Partido partido) {
+    public PartidoModel create(PartidoModel partido) {
         return partidoFacade.create(partido);
     }
 
-    public Partido update(Long id, Partido partido) {
+    public PartidoModel update(Long id, PartidoModel partido) {
         return partidoFacade.update(id, partido);
     }
 
@@ -39,8 +38,9 @@ public class PartidoService {
         partidoFacade.delete(id);
     }
 
-	public void createPartido(List<PartidoRequest> partido) {
+	public void createPartido(List<PartidoModel> partido) {
 		partidoFacade.createPartido(partido);
 		
 	}
+	
 }

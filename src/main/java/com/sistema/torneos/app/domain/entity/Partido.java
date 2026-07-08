@@ -32,11 +32,11 @@ public class Partido {
     @JoinColumn(name = "id_arbitro")
     @JsonIgnore
     private Arbitro arbitro;
-
+    
     @Column(name = "fecha", nullable = false)
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate fecha;
-    
+
     @Column(name = "hora", nullable = false)
     private String hora;
 

@@ -18,10 +18,6 @@ public class JornadaService {
         return jornadaFacade.crearJornadas(idTorneo, idCategoria);
     }
 
-    public JornadaResponse generarSiguienteJornada(Long idTorneo) {
-        return jornadaFacade.activarSiguienteJornada(idTorneo);
-    }
-
     public JornadaResponse obtenerJornadaActual(Long idTorneo) {
         return jornadaFacade.obtenerJornadaActual(idTorneo);
     }

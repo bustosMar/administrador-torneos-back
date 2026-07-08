@@ -36,14 +36,6 @@ public class JornadaController {
 		 }
 
 	    /**
-	     * 2. Activa siguiente jornada (crea partidos)
-	     */
-	    @PostMapping("/{idTorneo}/jornadas/siguiente")
-	    public JornadaResponse generarSiguiente(@PathVariable Long idTorneo) {
-	        return jornadaService.generarSiguienteJornada(idTorneo);
-	    }
-
-	    /**
 	     * 3. Ver jornada actual
 	     */
 	    @GetMapping("/{idTorneo}/jornadas/actual")

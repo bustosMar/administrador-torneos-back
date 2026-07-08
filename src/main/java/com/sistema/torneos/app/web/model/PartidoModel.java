@@ -1,5 +1,6 @@
 package com.sistema.torneos.app.web.model;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import lombok.*;
 
@@ -7,10 +8,18 @@ import lombok.*;
 @Setter
 public class PartidoModel {
 
-    private Long id;
-    private Long torneo;
-    private Long grupo;
+	private Long grupo;
+    private String grupoNombre;
     private Long arbitro;
-    private OffsetDateTime fechaHora;
-    private Long equipo;
+    private String arbitroNombre;
+    private Long jornada;
+    private Integer numeroJornada;
+    private Long equipoLocal;
+    private String equipoLocalNombre;
+    private Long equipoVisitante;
+    private String equipoVisitanteNombre;
+    private String hora;
+    private Boolean jugado;
+    private LocalDate fecha;
+   
 }
