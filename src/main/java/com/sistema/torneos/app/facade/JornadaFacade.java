@@ -145,7 +145,7 @@ public class JornadaFacade {
     // =====================================================
     // 3. OBTENER JORNADA ACTUAL
     // =====================================================
-    public JornadaResponse obtenerJornadaActual(Long idTorneo) {
+    public JornadaResponse obtenerJornadaActual(Long idTorneo, Long idCategoria) {
 
         Jornada jornada = jornadaRepository
                 .findFirstByTorneoIdAndEstado(idTorneo, "EN_CURSO");
@@ -157,7 +157,7 @@ public class JornadaFacade {
         List<Partido> partidos =
                 partidoRepository.findByJornadaId(jornada.getId());
 
-        return mapJornada(jornada, partidos);
+        return mapJornada(jornada, partidos, idCategoria);
     }
 
     // =====================================================
@@ -210,7 +210,10 @@ public class JornadaFacade {
     // =====================================================
     // 5. MAP JORNADA CON PARTIDOS
     // =====================================================
-    private JornadaResponse mapJornada(Jornada jornada, List<Partido> partidos) {
+    private JornadaResponse mapJornada(
+            Jornada jornada,
+            List<Partido> partidos,
+            Long idCategoria) {
 
         JornadaResponse dto = new JornadaResponse();
 
@@ -227,12 +230,31 @@ public class JornadaFacade {
         }
 
         dto.setFechaProgramada(jornada.getFechaProgramada());
-
+        
+        if(idCategoria!=null) {
+        	
         dto.setPartidos(
                 partidos.stream()
+                        .filter(partido ->
+                                partido.getEquipoLocal() != null
+                                &&
+                                partido.getEquipoLocal().getCategoriaTorneo() != null
+                                &&
+                                partido.getEquipoLocal().getCategoriaTorneo().getCategoria() != null
+                                &&
+                                partido.getEquipoLocal()
+                                        .getCategoriaTorneo()
+                                        .getCategoria()
+                                        .getId()
+                                        .equals(idCategoria)
+                        )
                         .map(this::mapPartido)
                         .toList()
         );
+        
+        }else {
+        	dto.setPartidos( partidos.stream() .map(this::mapPartido) .toList() );
+    	}
 
         return dto;
     }
@@ -427,7 +449,7 @@ public class JornadaFacade {
          partidos.add(p);
      }
        
-     return mapJornada(jornada, partidos);
+     return mapJornada(jornada, partidos,null);
  }
  
 }

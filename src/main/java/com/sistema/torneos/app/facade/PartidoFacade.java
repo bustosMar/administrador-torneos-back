@@ -68,6 +68,22 @@ public class PartidoFacade {
                 partido.getGrupo()
                         .getId();
 
+        Long idGrupoLocal =
+                partido.getEquipoLocal()
+                        .getGrupo()
+                        .getId();
+
+        Long idGrupoVisitante =
+                partido.getEquipoVisitante()
+                        .getGrupo()
+                        .getId();
+
+        if (!idGrupoLocal.equals(idGrupo) || !idGrupoVisitante.equals(idGrupo)) {
+            throw new ResourceNotFoundException(
+                    "Los equipos seleccionados no pertenecen al mismo grupo del partido."
+            );
+        }
+
         List<Partido> partidosJugados =
                 partidoRepository
                         .findByJornada_Torneo_IdAndEquipoLocal_CategoriaTorneo_IdAndGrupo_Id(
@@ -80,6 +96,8 @@ public class PartidoFacade {
                         .filter(jugado ->
 
                                 (
+                                    jugado.getGrupo().getId().equals(idGrupo)
+                                    &&
                                     jugado.getEquipoLocal().getId()
                                             .equals(partido.getEquipoLocal().getId())
                                     &&
@@ -90,6 +108,8 @@ public class PartidoFacade {
                                 ||
 
                                 (
+                                    jugado.getGrupo().getId().equals(idGrupo)
+                                    &&
                                     jugado.getEquipoLocal().getId()
                                             .equals(partido.getEquipoVisitante().getId())
                                     &&
@@ -222,7 +242,7 @@ public class PartidoFacade {
         
         if (!partidos.isEmpty()) {
             Jornada jornada = partidos.get(0).getJornada();
-            jornada.setEstado("JUGADA");
+            jornada.setEstado("EN_CURSO");
             jornadaRepository.save(jornada);
         }
     }

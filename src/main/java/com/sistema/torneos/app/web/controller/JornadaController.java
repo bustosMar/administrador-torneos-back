@@ -38,9 +38,9 @@ public class JornadaController {
 	    /**
 	     * 3. Ver jornada actual
 	     */
-	    @GetMapping("/{idTorneo}/jornadas/actual")
-	    public JornadaResponse actual(@PathVariable Long idTorneo) {
-	        return jornadaService.obtenerJornadaActual(idTorneo);
+	    @GetMapping("/{idTorneo}/{idCategoria}/jornadas-actual")
+	    public JornadaResponse actual(@PathVariable Long idTorneo,@PathVariable Long idCategoria) {
+	        return jornadaService.obtenerJornadaActual(idTorneo,idCategoria);
 	    }
 	    
 	    @GetMapping("/{idTorneo}/{idCategoria}/previsualizar-partidos")
