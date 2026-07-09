@@ -34,35 +34,6 @@ public class JornadaFacade {
     @Transactional
     public List<JornadaResponse> crearJornadas(Long idTorneo, Long idCategoria) {
 
-        List<Jornada> jornadasProgramadas =
-                jornadaRepository.findByTorneoIdAndEstado(
-                        idTorneo,
-                        "PROGRAMADA");
-
-        if (!jornadasProgramadas.isEmpty()) {
-
-            for (Jornada jornada : jornadasProgramadas) {
-
-                List<Partido> partidos =
-                        partidoRepository.findByJornadaId(jornada.getId());
-
-                if (!partidos.isEmpty()) {
-                    partidoRepository.deleteAll(partidos);
-                }
-            }
-
-            jornadaRepository.deleteAll(jornadasProgramadas);
-            reajustarSecuencia();
-        }
-
-        List<Jornada> jornadasJugadas =
-                jornadaRepository.findByTorneoIdAndEstado(
-                        idTorneo,
-                        "JUGADA");
-
-        int numeroInicial = jornadasJugadas.size() + 1;
-
-        // AQUÍ SE OBTIENEN POR TORNEO Y CATEGORÍA
         List<EquipoEnTorneo> equipos =
                 equipoEnTorneoRepository.findByTorneo_IdAndCategoriaTorneo_Id(
                         idTorneo,
@@ -72,58 +43,76 @@ public class JornadaFacade {
             return new ArrayList<>();
         }
 
+        List<Jornada> jornadasExistentes =
+                jornadaRepository.findByTorneoId(idTorneo);
+
         Map<Grupo, List<EquipoEnTorneo>> porGrupo =
                 equipos.stream()
-                        .collect(Collectors.groupingBy(
-                                EquipoEnTorneo::getGrupo));
+                        .collect(Collectors.groupingBy(EquipoEnTorneo::getGrupo));
 
-        List<Jornada> nuevasJornadas =
-                new ArrayList<>();
+        List<Jornada> nuevasJornadas = new ArrayList<>();
 
-        for (Map.Entry<Grupo, List<EquipoEnTorneo>> entry :
-                porGrupo.entrySet()) {
+        for (Map.Entry<Grupo, List<EquipoEnTorneo>> entry : porGrupo.entrySet()) {
 
             Grupo grupo = entry.getKey();
-
-            List<EquipoEnTorneo> equiposGrupo =
-                    entry.getValue();
+            List<EquipoEnTorneo> equiposGrupo = entry.getValue();
 
             if (equiposGrupo.size() < 2) {
                 continue;
             }
 
-            Torneo torneo =
-                    equiposGrupo.get(0).getTorneo();
+            Torneo torneo = equiposGrupo.get(0).getTorneo();
 
             List<List<EquipoEnTorneo>> calendario =
                     generarRoundRobin(equiposGrupo);
 
-            int numeroJornada = numeroInicial;
+            int totalJornadasNecesarias = calendario.size();
 
-            for (List<EquipoEnTorneo> ronda : calendario) {
+            List<Jornada> jornadasGrupo =
+                    jornadasExistentes.stream()
+                            .filter(j -> j.getGrupo() != null)
+                            .filter(j -> j.getGrupo().getId().equals(grupo.getId()))
+                            .toList();
+
+            Set<Integer> numerosExistentes =
+                    jornadasGrupo.stream()
+                            .map(Jornada::getNumeroJornada)
+                            .collect(Collectors.toSet());
+
+            for (int numeroJornada = 1;
+                 numeroJornada <= totalJornadasNecesarias;
+                 numeroJornada++) {
+
+                if (numerosExistentes.contains(numeroJornada)) {
+                    continue;
+                }
 
                 Jornada jornada = new Jornada();
 
-                jornada.setNumeroJornada(numeroJornada++);
+                jornada.setNumeroJornada(numeroJornada);
                 jornada.setEstado("PROGRAMADA");
                 jornada.setTorneo(torneo);
                 jornada.setGrupo(grupo);
-
-                jornada.setFechaProgramada(
-                        calcularFechaJornada(
-                                numeroJornada - numeroInicial));
+                jornada.setFechaProgramada(calcularFechaJornada(numeroJornada));
 
                 nuevasJornadas.add(jornada);
             }
         }
 
-        jornadaRepository.saveAll(nuevasJornadas);
+        if (!nuevasJornadas.isEmpty()) {
+            jornadaRepository.saveAll(nuevasJornadas);
+        }
 
-        return nuevasJornadas.stream()
+        List<Jornada> resultado =
+                jornadaRepository.findByTorneoId(idTorneo)
+                        .stream()
+                        .filter(j -> "PROGRAMADA".equalsIgnoreCase(j.getEstado()))
+                        .toList();
+
+        return resultado.stream()
                 .map(this::mapJornadaSinPartidos)
                 .toList();
-    }
-    
+    }    
         
 
    

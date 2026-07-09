@@ -217,7 +217,13 @@ public class PartidoFacade {
             partido.setEquipoVisitante(equipoVisitanteBD);
             partido.setArbitro(null);
         }
-
+                       
         partidoRepository.saveAll(partidos);
+        
+        if (!partidos.isEmpty()) {
+            Jornada jornada = partidos.get(0).getJornada();
+            jornada.setEstado("JUGADA");
+            jornadaRepository.save(jornada);
+        }
     }
 }
