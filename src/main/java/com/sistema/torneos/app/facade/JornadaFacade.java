@@ -2,6 +2,7 @@ package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.*;
 import com.sistema.torneos.app.domain.repository.*;
+import com.sistema.torneos.app.web.model.JugadorModel;
 import com.sistema.torneos.app.web.model.response.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -451,5 +452,16 @@ public class JornadaFacade {
        
      return mapJornada(jornada, partidos,null);
  }
+
+
+
+@SuppressWarnings("deprecation")
+public void update(Long id) {
+	if (jornadaRepository.existsById(id)) {
+		Jornada jornada = jornadaRepository.getById(id);
+		jornada.setId(1);
+		jornada.setEstado("JUGADA");		
+	}
+}
  
 }

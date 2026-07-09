@@ -236,6 +236,7 @@ public class PartidoFacade {
             partido.setEquipoLocal(equipoLocalBD);
             partido.setEquipoVisitante(equipoVisitanteBD);
             partido.setArbitro(null);
+            partido.setJugado(false);
         }
                        
         partidoRepository.saveAll(partidos);

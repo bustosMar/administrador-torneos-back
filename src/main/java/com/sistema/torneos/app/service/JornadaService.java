@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sistema.torneos.app.facade.JornadaFacade;
+import com.sistema.torneos.app.web.model.JugadorModel;
 import com.sistema.torneos.app.web.model.response.JornadaResponse;
 
 @Service
@@ -30,6 +31,10 @@ public class JornadaService {
                 idTorneo,
                 idCategoria);
     }
+
+	public void update(Long id) {
+		return jornadaFacade.update(id);
+	}
     
 }
 
