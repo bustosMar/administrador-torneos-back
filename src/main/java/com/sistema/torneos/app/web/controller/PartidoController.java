@@ -49,7 +49,8 @@ public class PartidoController {
     
     @PostMapping("/jornada")
     public ResponseEntity<Void> partidos(@RequestBody List<PartidoModel> partido) {
-    	partidoService.createPartido(partido);
+    	partidoService.createPartidos(partido);
     	return ResponseEntity.noContent().build();
     }
+    
 }

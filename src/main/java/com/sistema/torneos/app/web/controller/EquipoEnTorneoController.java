@@ -2,6 +2,7 @@ package com.sistema.torneos.app.web.controller;
 
 import com.sistema.torneos.app.web.model.EquipoEnTorneoModel;
 import com.sistema.torneos.app.web.model.response.EquipoEnTorneoResponse;
+import com.sistema.torneos.app.web.model.response.JornadaResponse;
 import com.sistema.torneos.app.service.EquipoEnTorneoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,4 +44,12 @@ public class EquipoEnTorneoController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+    
+    @GetMapping("/{idTorneo}/{idCategoria}")
+    public List<EquipoEnTorneoModel> findTorenoyCategoria(@PathVariable Long idTorneo,
+	         @PathVariable Long idCategoria) {
+        return service.findTorenoyCategoria(idTorneo,idCategoria);
+    }   
+    
+    
 }

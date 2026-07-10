@@ -1,11 +1,15 @@
 package com.sistema.torneos.app.web.model.mapper;
 
+import java.util.List;
+
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import com.sistema.torneos.app.domain.entity.EquipoEnTorneo;
+import com.sistema.torneos.app.domain.entity.Partido;
 import com.sistema.torneos.app.web.model.EquipoEnTorneoModel;
+import com.sistema.torneos.app.web.model.PartidoModel;
 
 @Mapper
 public interface EquipoEnTorneoMapper extends EntityMapper<EquipoEnTorneoModel, EquipoEnTorneo> {
@@ -32,5 +36,7 @@ public interface EquipoEnTorneoMapper extends EntityMapper<EquipoEnTorneoModel, 
     @Mapping(source = "grupo", target = "grupo.id")
     @Mapping(source = "categoriaTorneo", target = "categoriaTorneo.id")
     EquipoEnTorneo toEntity(EquipoEnTorneoModel model);
+    
+    List<EquipoEnTorneoModel> toModelList(List<EquipoEnTorneo> entityList);
     
 }

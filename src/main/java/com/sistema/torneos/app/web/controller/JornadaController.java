@@ -58,6 +58,6 @@ public class JornadaController {
 	    
 	    @PutMapping("/{id}/")
 	    public void update(@PathVariable("id") Long id) {
-	        return jornadaService.update(id);
+	        jornadaService.update(id);
 	    }
 }

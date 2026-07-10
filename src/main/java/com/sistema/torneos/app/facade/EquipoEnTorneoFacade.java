@@ -89,4 +89,13 @@ public class EquipoEnTorneoFacade {
             equipoEnTorneoRepository.deleteById(id);
         }
     }
+
+	public List<EquipoEnTorneoModel> findTorenoyCategoria(Long idTorneo, Long idCategoria) {
+		 List<EquipoEnTorneo> equipos =
+	                equipoEnTorneoRepository.findByTorneo_IdAndCategoriaTorneo_Id(
+	                        idTorneo,
+	                        idCategoria);
+		 
+		 return EquipoEnTorneoMapper.INSTANCE.toModelList(equipos);
+	}
 }

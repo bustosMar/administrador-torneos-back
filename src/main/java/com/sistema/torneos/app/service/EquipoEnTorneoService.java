@@ -42,4 +42,8 @@ public class EquipoEnTorneoService {
     public void delete(Long id) {
         equipoEnTorneoFacade.delete(id);
     }
+
+	public List<EquipoEnTorneoModel> findTorenoyCategoria(Long idTorneo, Long idCategoria) {
+		return equipoEnTorneoFacade.findTorenoyCategoria(idTorneo, idCategoria);
+	}
 }

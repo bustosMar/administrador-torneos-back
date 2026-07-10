@@ -21,5 +21,6 @@ public class PartidoModel {
     private String hora;
     private Boolean jugado;
     private LocalDate fecha;
+    private Long id;
    
 }

@@ -33,7 +33,7 @@ public class JornadaService {
     }
 
 	public void update(Long id) {
-		return jornadaFacade.update(id);
+		jornadaFacade.update(id);
 	}
     
 }

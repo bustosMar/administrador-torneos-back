@@ -38,9 +38,10 @@ public class PartidoService {
         partidoFacade.delete(id);
     }
 
-	public void createPartido(List<PartidoModel> partido) {
-		partidoFacade.createPartido(partido);
+	public void createPartidos(List<PartidoModel> partido) {
+		partidoFacade.createPartidos(partido);
 		
 	}
 	
+		
 }

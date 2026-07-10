@@ -7,10 +7,14 @@ import com.sistema.torneos.app.domain.repository.PartidoRepository;
 import com.sistema.torneos.app.exception.ResourceNotFoundException;
 import com.sistema.torneos.app.web.model.PartidoModel;
 import com.sistema.torneos.app.web.model.mapper.PartidoMapper;
+import com.sistema.torneos.app.domain.entity.Arbitro;
 import com.sistema.torneos.app.domain.entity.EquipoEnTorneo;
+import com.sistema.torneos.app.domain.repository.ArbitroRepository;
 import com.sistema.torneos.app.domain.repository.EquipoEnTorneoRepository;
 import java.util.Optional;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,16 +28,20 @@ public class PartidoFacade {
 	 private final PartidoRepository partidoRepository;
 	 private final JornadaRepository jornadaRepository;
 	 private final EquipoEnTorneoRepository equipoEnTorneoRepository;
+	 private final ArbitroRepository arbitroRepository;
+	 
 
 	    @Autowired
 	    public PartidoFacade(
 	            PartidoRepository partidoRepository,
 	            JornadaRepository jornadaRepository,
-	            EquipoEnTorneoRepository equipoEnTorneoRepository) {
+	            EquipoEnTorneoRepository equipoEnTorneoRepository,
+	            ArbitroRepository arbitroRepository) {
 
 	        this.partidoRepository = partidoRepository;
 	        this.jornadaRepository = jornadaRepository;
 	        this.equipoEnTorneoRepository = equipoEnTorneoRepository;
+	        this.arbitroRepository = arbitroRepository;
 	    }
 
 
@@ -157,7 +165,7 @@ public class PartidoFacade {
     }
 
     @Transactional
-    public void createPartido(List<PartidoModel> partidoModels) {
+    public void createPartidos(List<PartidoModel> partidoModels) {
 
         List<Partido> partidos =
                 PartidoMapper.INSTANCE.toEntityList(partidoModels);
@@ -170,81 +178,160 @@ public class PartidoFacade {
                     jornadaRepository.findById(idJornada)
                             .orElseThrow(() ->
                                     new ResourceNotFoundException(
-                                            "No existe la jornada con id: " + idJornada));
+                                            "No existe la jornada con id: "
+                                                    + idJornada));
+
+            Long idEquipoLocal =
+                    partido.getEquipoLocal().getId();
 
             EquipoEnTorneo equipoLocalBD =
-                    equipoEnTorneoRepository.findById(partido.getEquipoLocal().getId())
+                    equipoEnTorneoRepository.findById(idEquipoLocal)
                             .orElseThrow(() ->
                                     new ResourceNotFoundException(
                                             "No existe el equipo local con id: "
-                                                    + partido.getEquipoLocal().getId()));
+                                                    + idEquipoLocal));
+
+            Long idEquipoVisitante =
+                    partido.getEquipoVisitante().getId();
 
             EquipoEnTorneo equipoVisitanteBD =
-                    equipoEnTorneoRepository.findById(partido.getEquipoVisitante().getId())
+                    equipoEnTorneoRepository.findById(idEquipoVisitante)
                             .orElseThrow(() ->
                                     new ResourceNotFoundException(
                                             "No existe el equipo visitante con id: "
-                                                    + partido.getEquipoVisitante().getId()));
+                                                    + idEquipoVisitante));
 
-            Long idTorneo = jornadaBD.getTorneo().getId();
-            Long idCategoria = equipoLocalBD.getCategoriaTorneo().getId();
-            Long idGrupo = partido.getGrupo().getId();
+            /*
+             * Solo validar encuentros repetidos cuando
+             * el partido sea nuevo, es decir, cuando no tenga id.
+             */
+            if (partido.getId() == null) {
 
-            List<Partido> partidosJugados =
-                    partidoRepository
-                            .findByJornada_Torneo_IdAndEquipoLocal_CategoriaTorneo_IdAndGrupo_Id(
-                                    idTorneo,
-                                    idCategoria,
-                                    idGrupo);
+                Long idTorneo =
+                        jornadaBD.getTorneo().getId();
 
-            Optional<Partido> partidoExistente =
-                    partidosJugados.stream()
-                            .filter(jugado ->
-                                    (
-                                        jugado.getEquipoLocal().getId()
-                                                .equals(equipoLocalBD.getId())
-                                        &&
-                                        jugado.getEquipoVisitante().getId()
-                                                .equals(equipoVisitanteBD.getId())
-                                    )
-                                    ||
-                                    (
-                                        jugado.getEquipoLocal().getId()
-                                                .equals(equipoVisitanteBD.getId())
-                                        &&
-                                        jugado.getEquipoVisitante().getId()
-                                                .equals(equipoLocalBD.getId())
-                                    )
+                Long idCategoria =
+                        equipoLocalBD
+                                .getCategoriaTorneo()
+                                .getId();
+
+                Long idGrupo =
+                        partido.getGrupo().getId();
+
+                List<Partido> partidosJugados =
+                        partidoRepository
+                                .findByJornada_Torneo_IdAndEquipoLocal_CategoriaTorneo_IdAndGrupo_Id(
+                                        idTorneo,
+                                        idCategoria,
+                                        idGrupo
+                                );
+
+                Optional<Partido> partidoExistente =
+                        partidosJugados.stream()
+                                .filter(jugado -> {
+
+                                    boolean mismoOrden =
+                                            jugado.getEquipoLocal()
+                                                    .getId()
+                                                    .equals(equipoLocalBD.getId())
+                                            &&
+                                            jugado.getEquipoVisitante()
+                                                    .getId()
+                                                    .equals(equipoVisitanteBD.getId());
+
+                                    boolean ordenInvertido =
+                                            jugado.getEquipoLocal()
+                                                    .getId()
+                                                    .equals(equipoVisitanteBD.getId())
+                                            &&
+                                            jugado.getEquipoVisitante()
+                                                    .getId()
+                                                    .equals(equipoLocalBD.getId());
+
+                                    return mismoOrden || ordenInvertido;
+                                })
+                                .findFirst();
+
+                if (partidoExistente.isPresent()) {
+
+                    Partido repetido =
+                            partidoExistente.get();
+
+                    throw new ResourceNotFoundException(
+                            String.format(
+                                    "El encuentro '%s vs %s' ya fue jugado en la jornada %d.",
+                                    repetido.getEquipoLocal()
+                                            .getEquipo()
+                                            .getNombre(),
+                                    repetido.getEquipoVisitante()
+                                            .getEquipo()
+                                            .getNombre(),
+                                    repetido.getJornada()
+                                            .getNumeroJornada()
                             )
-                            .findFirst();
+                    );
+                }
 
-            if (partidoExistente.isPresent()) {
-
-                Partido repetido = partidoExistente.get();
-
-                throw new ResourceNotFoundException(
-                        String.format(
-                                "El encuentro '%s vs %s' ya fue jugado en la jornada %d.",
-                                repetido.getEquipoLocal().getEquipo().getNombre(),
-                                repetido.getEquipoVisitante().getEquipo().getNombre(),
-                                repetido.getJornada().getNumeroJornada()
-                        )
-                );
+                
             }
 
+            /*
+             * Se asignan las entidades obtenidas de la base de datos,
+             * tanto para nuevos como para existentes.
+             */
             partido.setJornada(jornadaBD);
             partido.setEquipoLocal(equipoLocalBD);
             partido.setEquipoVisitante(equipoVisitanteBD);
-            partido.setArbitro(null);
-            partido.setJugado(false);
+
+            /*
+             * No poner siempre arbitro en null porque al actualizar
+             * eliminarías el árbitro seleccionado.
+             */
+            if (partido.getArbitro() != null
+                    && partido.getArbitro().getId() != null) {
+
+                Long idArbitro =
+                        partido.getArbitro().getId();
+
+                Arbitro arbitroBD =
+                        arbitroRepository.findById(idArbitro)
+                                .orElseThrow(() ->
+                                        new ResourceNotFoundException(
+                                                "No existe el árbitro con id: "
+                                                        + idArbitro));
+
+                partido.setArbitro(arbitroBD);
+
+            } else {
+                partido.setArbitro(null);
+            }
+
+          
         }
-                       
+
         partidoRepository.saveAll(partidos);
-        
+
         if (!partidos.isEmpty()) {
-            Jornada jornada = partidos.get(0).getJornada();
-            jornada.setEstado("EN_CURSO");
+
+            Jornada jornada =
+                    partidos.get(0).getJornada();
+
+            switch (jornada.getEstado()) {
+
+                case "PROGRAMADA":
+                    jornada.setEstado("EN_CURSO");
+                    break;
+
+                case "EN_CURSO":
+                    jornada.setEstado("JUGADA");
+                    break;
+
+                default:
+                    break;
+            }
+
             jornadaRepository.save(jornada);
         }
-    }
+    }  
+   
 }

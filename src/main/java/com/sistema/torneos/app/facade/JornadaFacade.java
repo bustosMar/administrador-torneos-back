@@ -459,7 +459,7 @@ public class JornadaFacade {
 public void update(Long id) {
 	if (jornadaRepository.existsById(id)) {
 		Jornada jornada = jornadaRepository.getById(id);
-		jornada.setId(1);
+		jornada.setId(1L);
 		jornada.setEstado("JUGADA");		
 	}
 }
