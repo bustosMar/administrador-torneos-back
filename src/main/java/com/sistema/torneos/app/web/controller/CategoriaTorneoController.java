@@ -1,6 +1,7 @@
 package com.sistema.torneos.app.web.controller;
 
 import com.sistema.torneos.app.service.CategoriaTorneoService;
+import com.sistema.torneos.app.util.SearchUtil;
 import com.sistema.torneos.app.web.model.CategoriaTorneoModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,11 @@ public class CategoriaTorneoController {
             return categoriaTorneoService.findByTorneoId(torneoId);
         }
         return categoriaTorneoService.findAll();
+    }
+
+    @GetMapping("/search")
+    public List<CategoriaTorneoModel> search(@RequestParam("q") String query) {
+        return SearchUtil.search(categoriaTorneoService.findAll(), query);
     }
 
     @GetMapping("/{id}")

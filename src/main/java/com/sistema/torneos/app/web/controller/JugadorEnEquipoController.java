@@ -2,6 +2,7 @@ package com.sistema.torneos.app.web.controller;
 
 import com.sistema.torneos.app.web.model.JugadorEnEquipoModel;
 import com.sistema.torneos.app.service.JugadorEnEquipoService;
+import com.sistema.torneos.app.util.SearchUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,11 @@ public class JugadorEnEquipoController {
     @GetMapping
     public List<JugadorEnEquipoModel> getAll() {
         return service.findAllByTorneoActivo();
+    }
+
+    @GetMapping("/search")
+    public List<JugadorEnEquipoModel> search(@RequestParam("q") String query) {
+        return SearchUtil.search(service.findAllByTorneoActivo(), query);
     }
 
     @GetMapping("/{id}")

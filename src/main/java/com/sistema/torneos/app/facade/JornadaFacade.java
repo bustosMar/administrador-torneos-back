@@ -148,17 +148,39 @@ public class JornadaFacade {
     // =====================================================
     public JornadaResponse obtenerJornadaActual(Long idTorneo, Long idCategoria) {
 
-        Jornada jornada = jornadaRepository
-                .findFirstByTorneoIdAndEstado(idTorneo, "EN_CURSO");
+        List<EquipoEnTorneo> equiposCategoria =
+            equipoEnTorneoRepository.findByTorneo_IdAndCategoriaTorneo_Id(idTorneo, idCategoria);
 
-        if (jornada == null) {
+        if (equiposCategoria == null || equiposCategoria.isEmpty()) {
             return null;
         }
 
-        List<Partido> partidos =
-                partidoRepository.findByJornadaId(jornada.getId());
+        Set<Long> gruposCategoria = equiposCategoria.stream()
+            .map(EquipoEnTorneo::getGrupo)
+            .filter(Objects::nonNull)
+            .map(Grupo::getId)
+            .collect(Collectors.toSet());
 
-        return mapJornada(jornada, partidos, idCategoria);
+        List<Jornada> jornadasEnCurso = jornadaRepository.findByTorneoIdAndEstado(idTorneo, "EN_CURSO")
+            .stream()
+            .filter(jornada -> jornada.getGrupo() != null)
+            .filter(jornada -> gruposCategoria.contains(jornada.getGrupo().getId()))
+            .sorted(Comparator
+                .comparing(Jornada::getNumeroJornada)
+                .thenComparing(Jornada::getId))
+            .toList();
+
+        if (jornadasEnCurso.isEmpty()) {
+            return null;
+        }
+
+        Jornada jornadaPrincipal = jornadasEnCurso.get(0);
+
+        List<Partido> partidos = jornadasEnCurso.stream()
+            .flatMap(jornada -> partidoRepository.findByJornadaId(jornada.getId()).stream())
+            .toList();
+
+        return mapJornada(jornadaPrincipal, partidos, idCategoria);
     }
 
     // =====================================================
@@ -392,39 +414,70 @@ public class JornadaFacade {
  @Transactional(readOnly = true)
  public JornadaResponse previsualizarSiguienteJornada(Long idTorneo, Long idCategoria) {
 
-     Jornada jornada = jornadaRepository
-             .findFirstByTorneoIdAndEstado(idTorneo, "PROGRAMADA");
+     List<EquipoEnTorneo> equipos =
+         equipoEnTorneoRepository.findByTorneo_IdAndCategoriaTorneo_Id(idTorneo, idCategoria);
 
-     if (jornada == null) {
-         throw new RuntimeException("No hay jornadas disponibles");
+     if (equipos == null || equipos.isEmpty()) {
+     throw new RuntimeException("No hay equipos disponibles para la categoría seleccionada");
      }
 
-     List<EquipoEnTorneo> equipos =
-             equipoEnTorneoRepository.findByTorneo_IdAndCategoriaTorneo_Id(idTorneo,idCategoria);
+     Map<Grupo, List<EquipoEnTorneo>> equiposPorGrupo =
+         equipos.stream()
+             .filter(equipo -> equipo.getGrupo() != null)
+             .collect(Collectors.groupingBy(EquipoEnTorneo::getGrupo));
 
-     List<Partido> partidosExistentesBD =
-             partidoRepository.findAll();
+     List<Jornada> jornadasProgramadas =
+         jornadaRepository.findByTorneoIdAndEstado(idTorneo, "PROGRAMADA")
+             .stream()
+             .filter(jornada -> jornada.getGrupo() != null)
+             .filter(jornada -> equiposPorGrupo.keySet().stream()
+                 .anyMatch(grupo -> grupo.getId().equals(jornada.getGrupo().getId())))
+             .toList();
 
-     Set<String> partidosExistentes =
-             partidosExistentesBD.stream()
-                     .map(p -> {
+     if (jornadasProgramadas.isEmpty()) {
+     throw new RuntimeException("No hay jornadas disponibles");
+     }
 
-                         Long a = p.getEquipoLocal().getId();
-                         Long b = p.getEquipoVisitante().getId();
+     Map<Long, Jornada> siguienteJornadaPorGrupo =
+         jornadasProgramadas.stream()
+             .collect(Collectors.toMap(
+                 jornada -> jornada.getGrupo().getId(),
+                 jornada -> jornada,
+                 (jornada1, jornada2) -> jornada1.getNumeroJornada() <= jornada2.getNumeroJornada()
+                     ? jornada1
+                     : jornada2
+             ));
 
-                         return Math.min(a, b)
-                                 + "-"
-                                 + Math.max(a, b);
-
-                     })
-                     .collect(Collectors.toSet());
-
-     List<EquipoEnTorneo> ronda =
-             generarRondaSinRepetidos(
-                     equipos,
-                     partidosExistentes);
-
+     List<Partido> partidosExistentesBD = partidoRepository.findAll();
      List<Partido> partidos = new ArrayList<>();
+
+     for (Map.Entry<Grupo, List<EquipoEnTorneo>> entry : equiposPorGrupo.entrySet()) {
+
+     Grupo grupo = entry.getKey();
+     List<EquipoEnTorneo> equiposGrupo = entry.getValue();
+
+     Jornada jornadaGrupo = siguienteJornadaPorGrupo.get(grupo.getId());
+
+     if (jornadaGrupo == null || equiposGrupo.size() < 2) {
+         continue;
+     }
+
+     Set<String> partidosExistentesGrupo =
+         partidosExistentesBD.stream()
+             .filter(partido -> partido.getGrupo() != null)
+             .filter(partido -> partido.getGrupo().getId().equals(grupo.getId()))
+             .filter(partido -> partido.getEquipoLocal() != null)
+             .filter(partido -> partido.getEquipoLocal().getCategoriaTorneo() != null)
+             .filter(partido -> partido.getEquipoLocal().getCategoriaTorneo().getId().equals(idCategoria))
+             .map(p -> {
+                 Long a = p.getEquipoLocal().getId();
+                 Long b = p.getEquipoVisitante().getId();
+
+                 return Math.min(a, b) + "-" + Math.max(a, b);
+             })
+             .collect(Collectors.toSet());
+
+     List<EquipoEnTorneo> ronda = generarRondaSinRepetidos(equiposGrupo, partidosExistentesGrupo);
 
      for (int i = 0; i < ronda.size(); i += 2) {
 
@@ -432,25 +485,32 @@ public class JornadaFacade {
          EquipoEnTorneo visitante = ronda.get(i + 1);
 
          if (local == null || visitante == null) {
-             continue;
+         continue;
          }
 
          Partido p = new Partido();
 
-         // Se arma el objeto, pero NO se guarda
-         p.setJornada(jornada);
+         p.setJornada(jornadaGrupo);
          p.setEquipoLocal(local);
          p.setEquipoVisitante(visitante);
-         p.setGrupo(local.getGrupo());
-         p.setFecha(jornada.getFechaProgramada());
+         p.setGrupo(grupo);
+         p.setFecha(jornadaGrupo.getFechaProgramada());
          p.setHora("09:00");
          p.setGoles(new HashSet<>());
          p.setPresencias(new HashSet<>());
 
          partidos.add(p);
      }
-       
-     return mapJornada(jornada, partidos,null);
+     }
+
+     Jornada jornadaPrincipal = siguienteJornadaPorGrupo.values().stream()
+         .sorted(Comparator
+             .comparing(Jornada::getNumeroJornada)
+             .thenComparing(Jornada::getId))
+         .findFirst()
+         .orElseThrow(() -> new RuntimeException("No hay jornadas disponibles"));
+
+     return mapJornada(jornadaPrincipal, partidos, null);
  }
 
 

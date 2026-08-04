@@ -2,6 +2,7 @@ package com.sistema.torneos.app.service;
 
 import com.sistema.torneos.app.facade.PartidoFacade;
 import com.sistema.torneos.app.web.model.PartidoModel;
+import com.sistema.torneos.app.web.model.response.PartidoResponse;
 
 import java.util.List;
 
@@ -42,6 +43,10 @@ public class PartidoService {
 		partidoFacade.createPartidos(partido);
 		
 	}
+
+    public List<PartidoResponse> findPartidosUltimaJornadaJugada(Long idTorneo, Long idCategoria) {
+        return partidoFacade.findPartidosUltimaJornadaJugada(idTorneo, idCategoria);
+    }
 	
 		
 }

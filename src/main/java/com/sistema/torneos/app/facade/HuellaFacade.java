@@ -18,11 +18,23 @@ public class HuellaFacade {
     private String sdkPath;
 
     private volatile boolean escuchando = false;
+    private volatile Process procesoCaptura;
     private volatile String ultimoTemplateBase64;
+    private volatile String ultimoFeatureBase64;
     private volatile String ultimoDedo;
     private volatile String ultimoMensaje = "No se ha capturado ninguna huella.";
 
     public synchronized LectorResponse escucharLector() {
+
+        return iniciarCapturaExterna(false);
+    }
+
+    public synchronized LectorResponse escucharLectorVerificacion() {
+
+        return iniciarCapturaExterna(true);
+    }
+
+    private LectorResponse iniciarCapturaExterna(boolean verificacion) {
 
         if (escuchando) {
             return LectorResponse.builder()
@@ -34,22 +46,39 @@ public class HuellaFacade {
 
         escuchando = true;
         ultimoTemplateBase64 = null;
+        ultimoFeatureBase64 = null;
         ultimoDedo = null;
-        ultimoMensaje = "Abriendo capturador biométrico...";
+        ultimoMensaje = verificacion
+            ? "Abriendo capturador biométrico de verificación..."
+            : "Abriendo capturador biométrico...";
 
         new Thread(() -> {
             try {
-                ProcessBuilder processBuilder = new ProcessBuilder(
-                        "java",
-                        "-Djava.awt.headless=false",
-                        "-Djava.library.path=" + sdkPath,
-                        "-jar",
-                        biometriaJar
+            ProcessBuilder processBuilder;
+
+            if (verificacion) {
+                processBuilder = new ProcessBuilder(
+                    "java",
+                    "-Djava.awt.headless=false",
+                    "-Djava.library.path=" + sdkPath,
+                    "-jar",
+                    biometriaJar,
+                    "verify"
                 );
+            } else {
+                processBuilder = new ProcessBuilder(
+                    "java",
+                    "-Djava.awt.headless=false",
+                    "-Djava.library.path=" + sdkPath,
+                    "-jar",
+                    biometriaJar
+                );
+            }
 
                 processBuilder.redirectErrorStream(true);
 
-                Process process = processBuilder.start();
+            Process process = processBuilder.start();
+            procesoCaptura = process;
 
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(process.getInputStream()))) {
@@ -64,8 +93,14 @@ public class HuellaFacade {
 
                             if (partes.length == 3) {
                                 ultimoDedo = partes[1];
-                                ultimoTemplateBase64 = partes[2];
-                                ultimoMensaje = "Huella capturada correctamente.";
+
+                                if (verificacion) {
+                                    ultimoFeatureBase64 = partes[2];
+                                    ultimoMensaje = "Huella de verificación capturada correctamente.";
+                                } else {
+                                    ultimoTemplateBase64 = partes[2];
+                                    ultimoMensaje = "Huella capturada correctamente.";
+                                }
                             }
                         }
 
@@ -77,7 +112,9 @@ public class HuellaFacade {
 
                 int exitCode = process.waitFor();
 
-                if (exitCode != 0 && ultimoTemplateBase64 == null) {
+                if (exitCode != 0
+                        && ultimoTemplateBase64 == null
+                        && ultimoFeatureBase64 == null) {
                     ultimoMensaje = "El capturador finalizó con error. Código: " + exitCode;
                 }
 
@@ -86,13 +123,16 @@ public class HuellaFacade {
                 e.printStackTrace();
 
             } finally {
+                procesoCaptura = null;
                 escuchando = false;
             }
         }).start();
 
         return LectorResponse.builder()
                 .success(true)
-                .mensaje("Capturador biométrico abierto. Coloca el dedo en el lector.")
+                .mensaje(verificacion
+                        ? "Capturador biométrico de verificación abierto. Coloca el dedo en el lector."
+                        : "Capturador biométrico abierto. Coloca el dedo en el lector.")
                 .escuchando(true)
                 .build();
     }
@@ -116,7 +156,44 @@ public class HuellaFacade {
                 .build();
     }
 
+    public synchronized HuellaResponse obtenerHuellaVerificacion() {
+
+        if (ultimoFeatureBase64 == null || ultimoFeatureBase64.isBlank()) {
+            return HuellaResponse.builder()
+                    .success(false)
+                    .mensaje(ultimoMensaje)
+                    .dedo(null)
+                    .templateBase64(null)
+                    .build();
+        }
+
+        String featureActual = ultimoFeatureBase64;
+        String dedoActual = ultimoDedo;
+
+        // Consumimos la captura para evitar procesar la misma huella varias veces.
+        ultimoFeatureBase64 = null;
+        ultimoDedo = null;
+        ultimoMensaje = "Huella entregada. Inicia una nueva escucha para otra verificación.";
+
+        System.out.println("[HUELLA][VERIFICACION] Huella entregada al cliente para identificacion.");
+
+        return HuellaResponse.builder()
+                .success(true)
+                .mensaje("Huella de verificación obtenida correctamente.")
+                .dedo(dedoActual)
+                .templateBase64(featureActual)
+                .build();
+    }
+
     public synchronized LectorResponse detenerLector() {
+
+        System.out.println("[HUELLA][VERIFICACION] Solicitud para detener lector.");
+
+        if (procesoCaptura != null && procesoCaptura.isAlive()) {
+            procesoCaptura.destroy();
+        }
+
+        procesoCaptura = null;
 
         escuchando = false;
         ultimoMensaje = "Captura detenida.";

@@ -21,4 +21,16 @@ public class HuellaService {
     public HuellaResponse obtenerHuella() {
         return huellaFacade.obtenerHuella();
     }
+
+    public LectorResponse escucharLectorVerificacion() {
+	return huellaFacade.escucharLectorVerificacion();
+    }
+
+    public HuellaResponse obtenerHuellaVerificacion() {
+	return huellaFacade.obtenerHuellaVerificacion();
+    }
+
+    public LectorResponse detenerLector() {
+	return huellaFacade.detenerLector();
+    }
 }

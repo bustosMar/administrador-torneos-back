@@ -7,6 +7,7 @@ import com.sistema.torneos.app.domain.repository.PartidoRepository;
 import com.sistema.torneos.app.exception.ResourceNotFoundException;
 import com.sistema.torneos.app.web.model.PartidoModel;
 import com.sistema.torneos.app.web.model.mapper.PartidoMapper;
+import com.sistema.torneos.app.web.model.response.PartidoResponse;
 import com.sistema.torneos.app.domain.entity.Arbitro;
 import com.sistema.torneos.app.domain.entity.EquipoEnTorneo;
 import com.sistema.torneos.app.domain.repository.ArbitroRepository;
@@ -55,6 +56,14 @@ public class PartidoFacade {
     public PartidoModel findById(Long id) {
         return PartidoMapper.INSTANCE.toModel(partidoRepository.findById(id).orElse(null));
     }
+
+        public List<PartidoResponse> findPartidosUltimaJornadaJugada(Long idTorneo, Long idCategoria) {
+                return partidoRepository
+                                .findPartidosByUltimaJornadaJugadaAndCategoria(idTorneo, idCategoria)
+                                .stream()
+                                .map(this::mapPartidoResponse)
+                                .toList();
+        }
 
     @Transactional
     public PartidoModel create(PartidoModel partidoModel) {
@@ -170,6 +179,8 @@ public class PartidoFacade {
         List<Partido> partidos =
                 PartidoMapper.INSTANCE.toEntityList(partidoModels);
 
+        List<Jornada> jornadasActualizadas = new ArrayList<>();
+
         for (Partido partido : partidos) {
 
             Long idJornada = partido.getJornada().getId();
@@ -283,6 +294,10 @@ public class PartidoFacade {
             partido.setEquipoLocal(equipoLocalBD);
             partido.setEquipoVisitante(equipoVisitanteBD);
 
+                        if (jornadasActualizadas.stream().noneMatch(jornada -> jornada.getId().equals(jornadaBD.getId()))) {
+                                jornadasActualizadas.add(jornadaBD);
+                        }
+
             /*
              * No poner siempre arbitro en null porque al actualizar
              * eliminarías el árbitro seleccionado.
@@ -311,27 +326,64 @@ public class PartidoFacade {
 
         partidoRepository.saveAll(partidos);
 
-        if (!partidos.isEmpty()) {
+                if (!jornadasActualizadas.isEmpty()) {
 
-            Jornada jornada =
-                    partidos.get(0).getJornada();
+                        for (Jornada jornada : jornadasActualizadas) {
 
-            switch (jornada.getEstado()) {
+                                switch (jornada.getEstado()) {
 
-                case "PROGRAMADA":
-                    jornada.setEstado("EN_CURSO");
-                    break;
+                                        case "PROGRAMADA":
+                                                jornada.setEstado("EN_CURSO");
+                                                break;
 
-                case "EN_CURSO":
-                    jornada.setEstado("JUGADA");
-                    break;
+                                        case "EN_CURSO":
+                                                jornada.setEstado("JUGADA");
+                                                break;
 
-                default:
-                    break;
-            }
+                                        default:
+                                                break;
+                                }
+                        }
 
-            jornadaRepository.save(jornada);
+                        jornadaRepository.saveAll(jornadasActualizadas);
         }
     }  
+
+        private PartidoResponse mapPartidoResponse(Partido partido) {
+
+                PartidoResponse dto = new PartidoResponse();
+
+                dto.setIdPartido(partido.getId());
+                dto.setIdJornada(partido.getJornada().getId());
+                dto.setNumeroJornada(partido.getJornada().getNumeroJornada());
+                dto.setEstado(partido.getJornada().getEstado());
+
+                dto.setIdTorneo(partido.getJornada().getTorneo().getId());
+                dto.setTorneo(partido.getJornada().getTorneo().getNombre());
+
+                if (partido.getGrupo() != null) {
+                        dto.setIdGrupo(partido.getGrupo().getId());
+                        dto.setGrupo(partido.getGrupo().getNombre());
+                }
+
+                dto.setIdEquipoLocal(partido.getEquipoLocal().getId());
+                dto.setEquipoLocal(partido.getEquipoLocal().getEquipo().getNombre());
+
+                dto.setIdEquipoVisitante(partido.getEquipoVisitante().getId());
+                dto.setEquipoVisitante(partido.getEquipoVisitante().getEquipo().getNombre());
+
+                dto.setFecha(partido.getFecha() != null ? partido.getFecha().toString() : null);
+                dto.setHora(partido.getHora());
+
+                dto.setGolesLocal(0);
+                dto.setGolesVisitante(0);
+
+                if (partido.getArbitro() != null) {
+                        dto.setIdArbitro(partido.getArbitro().getId());
+                        dto.setArbitro(partido.getArbitro().getNombre());
+                }
+
+                return dto;
+        }
    
 }

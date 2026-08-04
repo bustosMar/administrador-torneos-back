@@ -3,6 +3,7 @@ package com.sistema.torneos.app.web.controller;
 
 import com.sistema.torneos.app.service.PartidoService;
 import com.sistema.torneos.app.web.model.PartidoModel;
+import com.sistema.torneos.app.web.model.response.PartidoResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,13 @@ public class PartidoController {
     @GetMapping("/{id}")
     public PartidoModel getById(@PathVariable("id") Long id) {
         return partidoService.findById(id);
+    }
+
+    @GetMapping("/torneo/{idTorneo}/categoria/{idCategoria}/jornada-jugada")
+    public List<PartidoResponse> getPartidosUltimaJornadaJugada(
+            @PathVariable Long idTorneo,
+            @PathVariable Long idCategoria) {
+        return partidoService.findPartidosUltimaJornadaJugada(idTorneo, idCategoria);
     }
 
     @PostMapping

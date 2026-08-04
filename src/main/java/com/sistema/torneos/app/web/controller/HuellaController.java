@@ -26,9 +26,24 @@ public class HuellaController {
         return huellaService.escucharLector();
     }
 
+    @PostMapping("/verificacion/lector/escuchar")
+    public LectorResponse escucharLectorVerificacion() {
+	return huellaService.escucharLectorVerificacion();
+    }
+
+    @PostMapping("/lector/detener")
+    public LectorResponse detenerLector() {
+	return huellaService.detenerLector();
+    }
+
     @GetMapping("/obtener")
     public HuellaResponse obtenerHuella() {
         return huellaService.obtenerHuella();
+    }
+
+    @GetMapping("/verificacion/obtener")
+    public HuellaResponse obtenerHuellaVerificacion() {
+	return huellaService.obtenerHuellaVerificacion();
     }
 
 }
