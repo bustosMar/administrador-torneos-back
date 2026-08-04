@@ -1,11 +1,11 @@
 package com.sistema.torneos.app.web.model;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
-public class GolModel {
-  
+public class SancionModel {
 
     private Long id;
     private Long partido;
@@ -13,7 +13,5 @@ public class GolModel {
     private Long equipoTorneo;
     private Integer minuto;
     private String tipo;
-    
-    
-
+    private String observacion;
 }

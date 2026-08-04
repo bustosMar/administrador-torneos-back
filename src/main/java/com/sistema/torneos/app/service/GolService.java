@@ -1,7 +1,7 @@
 package com.sistema.torneos.app.service;
 
-import com.sistema.torneos.app.domain.entity.Gol;
 import com.sistema.torneos.app.facade.GolFacade;
+import com.sistema.torneos.app.web.model.GolModel;
 
 import java.util.List;
 
@@ -18,19 +18,19 @@ public class GolService {
         this.golFacade = golFacade;
     }
 
-    public List<Gol> findAll() {
+    public List<GolModel> findAll() {
         return golFacade.findAll();
     }
 
-    public Gol findById(Long id) {
+    public GolModel findById(Long id) {
         return golFacade.findById(id);
     }
 
-    public Gol create(Gol gol) {
+    public GolModel create(GolModel gol) {
         return golFacade.create(gol);
     }
 
-    public Gol update(Long id, Gol gol) {
+    public GolModel update(Long id, GolModel gol) {
         return golFacade.update(id, gol);
     }
 

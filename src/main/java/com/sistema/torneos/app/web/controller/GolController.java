@@ -1,7 +1,8 @@
 package com.sistema.torneos.app.web.controller;
 
-import com.sistema.torneos.app.domain.entity.Gol;
 import com.sistema.torneos.app.service.GolService;
+import com.sistema.torneos.app.web.model.GolModel;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,22 +19,22 @@ public class GolController {
     }
 
     @GetMapping
-    public List<Gol> getAll() {
+    public List<GolModel> getAll() {
         return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public Gol getById(@PathVariable("id") Long id) {
+    public GolModel getById(@PathVariable("id") Long id) {
         return service.findById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Gol> create(@RequestBody Gol gol) {
+    public ResponseEntity<GolModel> create(@RequestBody GolModel gol) {
         return ResponseEntity.ok(service.create(gol));
     }
 
     @PutMapping("/{id}")
-    public Gol update(@PathVariable("id") Long id, @RequestBody Gol gol) {
+    public GolModel update(@PathVariable("id") Long id, @RequestBody GolModel gol) {
         return service.update(id, gol);
     }
 

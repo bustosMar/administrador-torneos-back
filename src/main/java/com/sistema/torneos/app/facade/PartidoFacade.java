@@ -239,27 +239,28 @@ public class PartidoFacade {
 
                 Optional<Partido> partidoExistente =
                         partidosJugados.stream()
-                                .filter(jugado -> {
+                                .filter(partidoRegistrado -> {
 
                                     boolean mismoOrden =
-                                            jugado.getEquipoLocal()
+                                            partidoRegistrado.getEquipoLocal()
                                                     .getId()
                                                     .equals(equipoLocalBD.getId())
                                             &&
-                                            jugado.getEquipoVisitante()
+                                            partidoRegistrado.getEquipoVisitante()
                                                     .getId()
                                                     .equals(equipoVisitanteBD.getId());
 
                                     boolean ordenInvertido =
-                                            jugado.getEquipoLocal()
+                                            partidoRegistrado.getEquipoLocal()
                                                     .getId()
                                                     .equals(equipoVisitanteBD.getId())
                                             &&
-                                            jugado.getEquipoVisitante()
+                                            partidoRegistrado.getEquipoVisitante()
                                                     .getId()
                                                     .equals(equipoLocalBD.getId());
 
-                                    return mismoOrden || ordenInvertido;
+                                    return (mismoOrden || ordenInvertido)
+                                            && partidoRegistrado.isJugado();
                                 })
                                 .findFirst();
 

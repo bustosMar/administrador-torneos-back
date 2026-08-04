@@ -1,7 +1,11 @@
 package com.sistema.torneos.app.facade;
 
 import com.sistema.torneos.app.domain.entity.Gol;
+import com.sistema.torneos.app.domain.entity.Grupo;
 import com.sistema.torneos.app.domain.repository.GolRepository;
+import com.sistema.torneos.app.web.model.GolModel;
+import com.sistema.torneos.app.web.model.mapper.GolMapper;
+import com.sistema.torneos.app.web.model.mapper.GrupoMapper;
 
 import java.util.List;
 
@@ -20,24 +24,32 @@ public class GolFacade {
         this.golRepository = golRepository;
     }
 
-    public List<Gol> findAll() {
-        return golRepository.findAll();
+    public List<GolModel> findAll() {
+    	
+        List<Gol> goles = golRepository.findAll();
+
+        return GolMapper.INSTANCE.toModel(goles);
+        
     }
 
-    public Gol findById(Long id) {
-        return golRepository.findById(id).orElse(null);
+    public GolModel findById(Long id) {
+    	
+        return GolMapper.INSTANCE.toModel(golRepository.findById(id).orElse(null));
     }
 
     @Transactional
-    public Gol create(Gol gol) {
-        return golRepository.save(gol);
+    public GolModel create(GolModel gol) {
+        return GolMapper.INSTANCE.toModel(golRepository.save(GolMapper.INSTANCE.toEntity(gol)));
+
     }
 
     @Transactional
-    public Gol update(Long id, Gol gol) {
+    public GolModel update(Long id, GolModel golModel) {
         if (golRepository.existsById(id)) {
-            gol.setId(id);
-            return golRepository.save(gol);
+        	Gol gol = GolMapper.INSTANCE.toEntity(golModel);
+        	gol.setId(id);
+        	
+            return GolMapper.INSTANCE.toModel(golRepository.save(gol));
         }
         return null;
     }

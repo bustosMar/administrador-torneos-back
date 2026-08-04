@@ -44,6 +44,23 @@ public class JornadaFacade {
             return new ArrayList<>();
         }
 
+        Set<Long> gruposCategoria =
+            equipos.stream()
+                .map(EquipoEnTorneo::getGrupo)
+                .filter(Objects::nonNull)
+                .map(Grupo::getId)
+                .collect(Collectors.toSet());
+
+        boolean existeJornadaEnCurso =
+            jornadaRepository.findByTorneoIdAndEstado(idTorneo, "EN_CURSO")
+                .stream()
+                .filter(jornada -> jornada.getGrupo() != null)
+                .anyMatch(jornada -> gruposCategoria.contains(jornada.getGrupo().getId()));
+
+        if (existeJornadaEnCurso) {
+            throw new RuntimeException("No puedes generar una nueva jornada, porque hay una en curso");
+        }
+
         List<Jornada> jornadasExistentes =
                 jornadaRepository.findByTorneoId(idTorneo);
 
@@ -52,6 +69,7 @@ public class JornadaFacade {
                         .collect(Collectors.groupingBy(EquipoEnTorneo::getGrupo));
 
         List<Jornada> nuevasJornadas = new ArrayList<>();
+        List<Jornada> jornadasActualizadas = new ArrayList<>();
 
         for (Map.Entry<Grupo, List<EquipoEnTorneo>> entry : porGrupo.entrySet()) {
 
@@ -74,6 +92,20 @@ public class JornadaFacade {
                             .filter(j -> j.getGrupo() != null)
                             .filter(j -> j.getGrupo().getId().equals(grupo.getId()))
                             .toList();
+
+            for (Jornada jornadaExistente : jornadasGrupo) {
+                if (!"PROGRAMADA".equalsIgnoreCase(jornadaExistente.getEstado())) {
+                    continue;
+                }
+
+                LocalDate fechaEsperada =
+                        calcularFechaJornada(jornadaExistente.getNumeroJornada());
+
+                if (!Objects.equals(jornadaExistente.getFechaProgramada(), fechaEsperada)) {
+                    jornadaExistente.setFechaProgramada(fechaEsperada);
+                    jornadasActualizadas.add(jornadaExistente);
+                }
+            }
 
             Set<Integer> numerosExistentes =
                     jornadasGrupo.stream()
@@ -102,6 +134,10 @@ public class JornadaFacade {
 
         if (!nuevasJornadas.isEmpty()) {
             jornadaRepository.saveAll(nuevasJornadas);
+        }
+
+        if (!jornadasActualizadas.isEmpty()) {
+            jornadaRepository.saveAll(jornadasActualizadas);
         }
 
         List<Jornada> resultado =
@@ -405,7 +441,7 @@ public class JornadaFacade {
                             TemporalAdjusters.next(
                                     DayOfWeek.SUNDAY));
 
-        return primerDomingo.plusWeeks(semanas);
+        return primerDomingo.plusWeeks(Math.max(semanas - 1, 0));
     }
     
  // =====================================================
