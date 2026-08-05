@@ -4,15 +4,19 @@ import com.sistema.torneos.app.domain.entity.EquipoEnTorneo;
 import com.sistema.torneos.app.domain.entity.Jugador;
 import com.sistema.torneos.app.domain.entity.Partido;
 import com.sistema.torneos.app.domain.entity.Sancion;
+import com.sistema.torneos.app.domain.entity.Suspension;
 import com.sistema.torneos.app.domain.entity.Torneo;
 import com.sistema.torneos.app.domain.repository.EquipoEnTorneoRepository;
 import com.sistema.torneos.app.domain.repository.JugadorRepository;
 import com.sistema.torneos.app.domain.repository.PartidoRepository;
 import com.sistema.torneos.app.domain.repository.SancionRepository;
+import com.sistema.torneos.app.domain.repository.SuspensionRepository;
 import com.sistema.torneos.app.exception.ResourceNotFoundException;
 import com.sistema.torneos.app.web.model.SancionModel;
 import com.sistema.torneos.app.web.model.mapper.SancionMapper;
 import com.sistema.torneos.app.web.model.mapper.TorneoMapper;
+import com.sistema.torneos.app.service.EvaluacionFechasSuspension;
+import com.sistema.torneos.app.service.OpenAiSuspensionEvaluator;
 
 import java.util.List;
 import java.util.Locale;
@@ -29,18 +33,24 @@ public class SancionFacade {
     private final PartidoRepository partidoRepository;
     private final JugadorRepository jugadorRepository;
     private final EquipoEnTorneoRepository equipoEnTorneoRepository;
+    private final SuspensionRepository suspensionRepository;
+    private final OpenAiSuspensionEvaluator suspensionEvaluator;
 
     @Autowired
     public SancionFacade(
             SancionRepository sancionRepository,
             PartidoRepository partidoRepository,
             JugadorRepository jugadorRepository,
-            EquipoEnTorneoRepository equipoEnTorneoRepository) {
+            EquipoEnTorneoRepository equipoEnTorneoRepository,
+            SuspensionRepository suspensionRepository,
+            OpenAiSuspensionEvaluator suspensionEvaluator) {
 
         this.sancionRepository = sancionRepository;
         this.partidoRepository = partidoRepository;
         this.jugadorRepository = jugadorRepository;
         this.equipoEnTorneoRepository = equipoEnTorneoRepository;
+        this.suspensionRepository = suspensionRepository;
+        this.suspensionEvaluator = suspensionEvaluator;
     }
 
     public List<SancionModel> findAll() {
@@ -57,10 +67,51 @@ public class SancionFacade {
 
     @Transactional
     public SancionModel create(SancionModel sancionModel) {
-        
-    	normalizarTipo(sancionModel.getTipo());
-    	
-        return SancionMapper.INSTANCE.toModel(sancionRepository.save(SancionMapper.INSTANCE.toEntity(sancionModel)));
+        String tipo = normalizarTipo(sancionModel.getTipo());
+        Sancion sancion = SancionMapper.INSTANCE.toEntity(sancionModel);
+        sancion.setTipo(tipo);
+
+        int amarillasPrevias = "ROJA".equals(tipo)
+                ? Math.toIntExact(sancionRepository.countByPartidoIdAndJugadorIdAndTipoIgnoreCase(
+                        sancionModel.getPartido(), sancionModel.getJugador(), "AMARILLA"))
+                : 0;
+
+        Sancion sancionGuardada = sancionRepository.save(sancion);
+        boolean requiereSuspension = "ROJA".equals(tipo) && amarillasPrevias < 2;
+        boolean suspensionGenerada = false;
+        boolean suspensionPendienteRevision = false;
+        String mensajeSuspension = null;
+
+        if (requiereSuspension) {
+            try {
+                EvaluacionFechasSuspension evaluacion = suspensionEvaluator.evaluar(
+                        sancionGuardada.getPartido(), sancionGuardada.getJugador(), amarillasPrevias,sancionGuardada.getObservacion());
+
+                Suspension suspension = new Suspension();
+                suspension.setJugador(sancionGuardada.getJugador());
+                suspension.setFechaInicio(evaluacion.fechaInicio());
+                suspension.setFechaFin(evaluacion.fechaFin());
+                suspension.setMotivo(evaluacion.motivo());
+                suspensionRepository.save(suspension);
+                suspensionGenerada = true;
+                mensajeSuspension = "Suspensión evaluada y creada por IA.";
+            } catch (IllegalStateException e) {
+                Suspension suspension = new Suspension();
+                suspension.setJugador(sancionGuardada.getJugador());
+                suspension.setMotivo(sancionGuardada.getObservacion());
+                suspensionRepository.save(suspension);
+                suspensionGenerada = true;
+                mensajeSuspension = "La roja fue registrada, pero la suspensión requiere revisión manual: "
+                        + e.getMessage();
+            }
+        }
+
+        SancionModel resultado = SancionMapper.INSTANCE.toModel(sancionGuardada);
+        resultado.setAmarillasPrevias(amarillasPrevias);
+        resultado.setSuspensionGenerada(suspensionGenerada);
+        resultado.setSuspensionPendienteRevision(suspensionPendienteRevision);
+        resultado.setMensajeSuspension(mensajeSuspension);
+        return resultado;
     }
 
     @Transactional

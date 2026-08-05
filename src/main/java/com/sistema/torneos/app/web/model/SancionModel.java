@@ -14,4 +14,8 @@ public class SancionModel {
     private Integer minuto;
     private String tipo;
     private String observacion;
+    private Boolean suspensionGenerada;
+    private Boolean suspensionPendienteRevision;
+    private String mensajeSuspension;
+    private Integer amarillasPrevias;
 }

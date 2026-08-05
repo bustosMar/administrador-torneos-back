@@ -35,4 +35,10 @@ biometria:
   capture:
     jar: "C:/SistemaTorneos/biometria/biometria-capture-jar-with-dependencies.jar"
   sdk:
-    path: "C:/Windows/System32"
+    path: "C:/Program Files/DigitalPersona/Bin"    
+
+ai:
+  openai:
+    api-key: "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"
+    model: "gpt-5-mini"
+    rules-path: ${REGLAS_SUSPENSIONES_PATH:config/reglas-suspensiones.md}
