@@ -35,7 +35,7 @@ biometria:
   capture:
     jar: "C:/SistemaTorneos/biometria/biometria-capture-jar-with-dependencies.jar"
   sdk:
-    path: "C:/Program Files/DigitalPersona/Bin"    
+    path: "C:/Windows/System32"
 
 ai:
   gemini:
