@@ -16,7 +16,7 @@ import com.sistema.torneos.app.web.model.SancionModel;
 import com.sistema.torneos.app.web.model.mapper.SancionMapper;
 import com.sistema.torneos.app.web.model.mapper.TorneoMapper;
 import com.sistema.torneos.app.service.EvaluacionFechasSuspension;
-import com.sistema.torneos.app.service.OpenAiSuspensionEvaluator;
+import com.sistema.torneos.app.service.GeminiSuspensionEvaluator;
 
 import java.util.List;
 import java.util.Locale;
@@ -34,7 +34,7 @@ public class SancionFacade {
     private final JugadorRepository jugadorRepository;
     private final EquipoEnTorneoRepository equipoEnTorneoRepository;
     private final SuspensionRepository suspensionRepository;
-    private final OpenAiSuspensionEvaluator suspensionEvaluator;
+    private final GeminiSuspensionEvaluator suspensionEvaluator;
 
     @Autowired
     public SancionFacade(
@@ -43,7 +43,7 @@ public class SancionFacade {
             JugadorRepository jugadorRepository,
             EquipoEnTorneoRepository equipoEnTorneoRepository,
             SuspensionRepository suspensionRepository,
-            OpenAiSuspensionEvaluator suspensionEvaluator) {
+            GeminiSuspensionEvaluator suspensionEvaluator) {
 
         this.sancionRepository = sancionRepository;
         this.partidoRepository = partidoRepository;
@@ -69,6 +69,17 @@ public class SancionFacade {
     public SancionModel create(SancionModel sancionModel) {
         String tipo = normalizarTipo(sancionModel.getTipo());
         Sancion sancion = SancionMapper.INSTANCE.toEntity(sancionModel);
+        sancion.setJugador(
+        	    jugadorRepository.findById(sancionModel.getJugador()).get()
+        	);
+
+        	sancion.setEquipoTorneo(
+        			equipoEnTorneoRepository.findById(sancionModel.getEquipoTorneo()).get()
+        	);
+
+        	sancion.setPartido(
+        	    partidoRepository.findById(sancionModel.getPartido()).get()
+        	);
         sancion.setTipo(tipo);
 
         int amarillasPrevias = "ROJA".equals(tipo)
@@ -99,8 +110,10 @@ public class SancionFacade {
                 Suspension suspension = new Suspension();
                 suspension.setJugador(sancionGuardada.getJugador());
                 suspension.setMotivo(sancionGuardada.getObservacion());
+                suspension.setFechaInicio(sancionGuardada.getPartido().getFecha());
+                suspension.setFechaFin(sancionGuardada.getPartido().getFecha());
                 suspensionRepository.save(suspension);
-                suspensionGenerada = true;
+                suspensionPendienteRevision = true;
                 mensajeSuspension = "La roja fue registrada, pero la suspensión requiere revisión manual: "
                         + e.getMessage();
             }
