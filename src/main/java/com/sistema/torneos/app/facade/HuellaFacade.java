@@ -115,7 +115,7 @@ public class HuellaFacade {
                 if (exitCode != 0
                         && ultimoTemplateBase64 == null
                         && ultimoFeatureBase64 == null) {
-                    ultimoMensaje = "El capturador finalizó con error. Código: " + exitCode;
+                    ultimoMensaje = "El capturador finalizó con error.";
                 }
 
             } catch (Exception e) {
