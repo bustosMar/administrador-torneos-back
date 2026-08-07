@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   datasource:
@@ -31,12 +31,6 @@ logging:
     org.springframework.jdbc: DEBUG
     org.springframework.boot.sql.init: DEBUG
     
-biometria:
-  capture:
-    jar: "C:/SistemaTorneos/biometria/biometria-capture-jar-with-dependencies.jar"
-  sdk:
-    path: "C:/Windows/System32"
-
 ai:
   gemini:
     api-key: "AQ.Ab8RN6KY-Mi3VJBzGultiBh7w5qYQ-swUIox5lNTRFDQDt6KJg"
