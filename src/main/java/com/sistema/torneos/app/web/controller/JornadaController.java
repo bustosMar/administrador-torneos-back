@@ -16,8 +16,6 @@ import com.sistema.torneos.app.web.model.JugadorModel;
 import com.sistema.torneos.app.web.model.response.JornadaReponse;
 import com.sistema.torneos.app.web.model.response.JornadaResponse;
 
-
-
 @RestController
 @RequestMapping("/api/jornadas")
 public class JornadaController {

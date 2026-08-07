@@ -1,7 +1,6 @@
 package com.sistema.torneos.app.web.controller;
 
 import com.sistema.torneos.app.web.model.ArbitroModel;
-import com.sistema.torneos.app.domain.entity.Arbitro;
 import com.sistema.torneos.app.service.ArbitroService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
