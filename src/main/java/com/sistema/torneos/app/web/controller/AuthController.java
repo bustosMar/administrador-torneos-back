@@ -31,7 +31,8 @@ import static com.sistema.torneos.config.TokenJwtConfig.*;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = {"http://localhost:4200"})
+@CrossOrigin(origins = {"http://localhost:4200",
+"https://encounter-legislature-surgery-technical.trycloudflare.com"})
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
