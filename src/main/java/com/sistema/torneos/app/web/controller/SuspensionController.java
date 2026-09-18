@@ -2,6 +2,7 @@ package com.sistema.torneos.app.web.controller;
 
 import com.sistema.torneos.app.domain.entity.Suspension;
 import com.sistema.torneos.app.service.SuspensionService;
+import com.sistema.torneos.app.web.model.request.CrearSuspensionRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,8 +29,8 @@ public class SuspensionController {
     }
 
     @PostMapping
-    public ResponseEntity<Suspension> create(@RequestBody Suspension suspension) {
-        return ResponseEntity.ok(service.create(suspension));
+    public ResponseEntity<Suspension> create(@RequestBody CrearSuspensionRequest request) {
+        return ResponseEntity.ok(service.create(request));
     }
 
     @PutMapping("/{id}")

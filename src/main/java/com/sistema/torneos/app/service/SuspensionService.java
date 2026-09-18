@@ -2,6 +2,7 @@ package com.sistema.torneos.app.service;
 
 import com.sistema.torneos.app.domain.entity.Suspension;
 import com.sistema.torneos.app.facade.SuspensionFacade;
+import com.sistema.torneos.app.web.model.request.CrearSuspensionRequest;
 
 import java.util.List;
 
@@ -28,6 +29,10 @@ public class SuspensionService {
 
     public Suspension create(Suspension suspension) {
         return suspensionFacade.create(suspension);
+    }
+
+    public Suspension create(CrearSuspensionRequest request) {
+        return suspensionFacade.create(request);
     }
 
     public Suspension update(Long id, Suspension suspension) {
