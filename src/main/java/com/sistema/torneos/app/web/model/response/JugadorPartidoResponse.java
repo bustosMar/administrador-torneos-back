@@ -13,4 +13,5 @@ public class JugadorPartidoResponse {
 	private Long idEquipo;
 	private String equipo;
 	private boolean presente;
+	private boolean suspendido;
 }

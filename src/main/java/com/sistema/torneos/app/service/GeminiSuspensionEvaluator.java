@@ -28,11 +28,11 @@ public class GeminiSuspensionEvaluator {
     private final HttpClient httpClient;
 
 
-    @Value("${ai.gemini.api-key:}")
-    private String apiKey;
-
     @Value("${ai.gemini.model:}")
     private String model;
+
+        @Value("${ai.gemini.api-key-path:C:/SistemaTorneos/config/gemini-api-key.txt}")
+        private String apiKeyPath;
 
     @Value("${ai.gemini.rules-path:config/reglas-suspensiones.md}")
     private String rulesPath;
@@ -52,9 +52,9 @@ public class GeminiSuspensionEvaluator {
             int amarillasPrevias,
             String contexto) {
 
-        validarConfiguracion();
-
         try {
+                        String apiKey = leerApiKey();
+                        validarConfiguracion(apiKey);
 
             String reglas = Files.readString(
                     Path.of(rulesPath),
@@ -81,7 +81,7 @@ public class GeminiSuspensionEvaluator {
             );
 
 
-            JsonNode respuesta = solicitarEvaluacion(reglas, caso);
+            JsonNode respuesta = solicitarEvaluacion(reglas, caso, apiKey);
 
             return convertirRespuesta(
                     respuesta,
@@ -109,7 +109,8 @@ public class GeminiSuspensionEvaluator {
 
     private JsonNode solicitarEvaluacion(
             String reglas,
-            String contexto)
+            String contexto,
+            String apiKey)
             throws IOException, InterruptedException {
 
 
@@ -276,7 +277,18 @@ public class GeminiSuspensionEvaluator {
 
 
 
-    private void validarConfiguracion(){
+        private String leerApiKey() {
+                try {
+                        return Files.readString(Path.of(apiKeyPath), StandardCharsets.UTF_8).trim();
+                } catch (IOException e) {
+                        throw new IllegalStateException(
+                                        "No existe o no se puede leer el archivo de API key: " + apiKeyPath,
+                                        e
+                        );
+                }
+        }
+
+        private void validarConfiguracion(String apiKey){
 
         if(apiKey == null || apiKey.isBlank()
                 || model == null || model.isBlank()){

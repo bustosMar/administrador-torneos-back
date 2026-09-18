@@ -33,6 +33,6 @@ logging:
     
 ai:
   gemini:
-    api-key: "AQ.Ab8RN6KY-Mi3VJBzGultiBh7w5qYQ-swUIox5lNTRFDQDt6KJg"
+    api-key-path: ${GEMINI_API_KEY_PATH:C:/SistemaTorneos/config/gemini-api-key.txt}
     model: "gemini-3.5-flash"
     rules-path: ${REGLAS_SUSPENSIONES_PATH:config/reglas-suspensiones.md}

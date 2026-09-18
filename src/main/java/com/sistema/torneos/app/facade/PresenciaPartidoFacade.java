@@ -11,6 +11,7 @@ import com.sistema.torneos.app.domain.entity.Jugador;
 import com.sistema.torneos.app.domain.repository.JugadorEnEquipoRepository;
 import com.sistema.torneos.app.domain.repository.PartidoRepository;
 import com.sistema.torneos.app.domain.repository.PresenciaPartidoRepository;
+import com.sistema.torneos.app.domain.repository.SuspensionRepository;
 import com.sistema.torneos.app.exception.ResourceNotFoundException;
 import com.sistema.torneos.app.web.model.request.GuardarPresenciasPartidoRequest;
 import com.sistema.torneos.app.web.model.request.RegistrarPresenciaHuellaRequest;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.time.LocalDate;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +39,18 @@ public class PresenciaPartidoFacade {
     private final PresenciaPartidoRepository presenciaPartidoRepository;
     private final PartidoRepository partidoRepository;
     private final JugadorEnEquipoRepository jugadorEnEquipoRepository;
+    private final SuspensionRepository suspensionRepository;
 
     @Autowired
     public PresenciaPartidoFacade(
             PresenciaPartidoRepository presenciaPartidoRepository,
             PartidoRepository partidoRepository,
-            JugadorEnEquipoRepository jugadorEnEquipoRepository) {
+            JugadorEnEquipoRepository jugadorEnEquipoRepository,
+            SuspensionRepository suspensionRepository) {
         this.presenciaPartidoRepository = presenciaPartidoRepository;
         this.partidoRepository = partidoRepository;
         this.jugadorEnEquipoRepository = jugadorEnEquipoRepository;
+        this.suspensionRepository = suspensionRepository;
     }
 
     public List<PresenciaPartido> findAll() {
@@ -71,7 +76,7 @@ public class PresenciaPartidoFacade {
     List<JugadorPartidoResponse> jugadoresVisitante = new ArrayList<>();
 
     for (JugadorEnEquipo jugadorEnEquipo : jugadoresElegibles) {
-        JugadorPartidoResponse dto = mapJugador(jugadorEnEquipo, jugadoresPresentes.contains(jugadorEnEquipo.getJugador().getId()));
+        JugadorPartidoResponse dto = mapJugador(jugadorEnEquipo, jugadoresPresentes.contains(jugadorEnEquipo.getJugador().getId()), partido);
 
         if (jugadorEnEquipo.getEquipo().getId().equals(partido.getEquipoLocal().getEquipo().getId())) {
             jugadoresLocal.add(dto);
@@ -123,7 +128,11 @@ public class PresenciaPartidoFacade {
     response.setMensaje(presenciaExistente.isPresent()
             ? "El jugador ya tiene presencia registrada en este partido."
             : "Jugador identificado correctamente. Listo para agregarse a la lista temporal.");
-    response.setJugador(mapJugador(jugadorDetectado, true));
+    if (estaSuspendido(jugadorDetectado.getJugador().getId(), partido.getFecha())) {
+        throw new ResourceNotFoundException("El jugador está suspendido para la fecha de este partido.");
+    }
+
+    response.setJugador(mapJugador(jugadorDetectado, true, partido));
     response.setPresenciasRegistradas(mapPresencias(
             presenciaPartidoRepository.findByPartido_IdOrderByJugador_NombreAscJugador_ApellidoAsc(idPartido),
             partido,
@@ -151,6 +160,10 @@ public class PresenciaPartidoFacade {
 	    if (!jugadoresElegiblesIds.contains(idJugador)) {
 	        throw new ResourceNotFoundException("Uno de los jugadores no está ligado a los equipos de este partido.");
 	    }
+
+        if (estaSuspendido(idJugador, partido.getFecha())) {
+            throw new ResourceNotFoundException("Uno de los jugadores está suspendido para la fecha de este partido.");
+        }
 
 	    boolean yaExiste = presenciaPartidoRepository.findByPartido_IdAndJugador_Id(idPartido, idJugador).isPresent();
 
@@ -210,7 +223,7 @@ public class PresenciaPartidoFacade {
     );
     }
 
-    private JugadorPartidoResponse mapJugador(JugadorEnEquipo jugadorEnEquipo, boolean presente) {
+    private JugadorPartidoResponse mapJugador(JugadorEnEquipo jugadorEnEquipo, boolean presente, Partido partido) {
     Jugador jugador = jugadorEnEquipo.getJugador();
 
     JugadorPartidoResponse dto = new JugadorPartidoResponse();
@@ -220,6 +233,7 @@ public class PresenciaPartidoFacade {
     dto.setIdEquipo(jugadorEnEquipo.getEquipo().getId());
     dto.setEquipo(jugadorEnEquipo.getEquipo().getNombre());
     dto.setPresente(presente);
+    dto.setSuspendido(estaSuspendido(jugador.getId(), partido.getFecha()));
 
     return dto;
     }
@@ -252,6 +266,17 @@ public class PresenciaPartidoFacade {
     }
 
     throw new ResourceNotFoundException("La huella capturada no corresponde a ningún jugador de este partido.");
+    }
+
+    private boolean estaSuspendido(Long idJugador, LocalDate fechaPartido) {
+        if (fechaPartido == null) {
+            return false;
+        }
+
+        return suspensionRepository.findByJugadorId(idJugador).stream()
+                .anyMatch(suspension ->
+                        !fechaPartido.isBefore(suspension.getFechaInicio())
+                                && !fechaPartido.isAfter(suspension.getFechaFin()));
     }
 
     private DPFPFeatureSet crearFeatureSet(String huellaVerificacion) {
@@ -319,6 +344,7 @@ public class PresenciaPartidoFacade {
                         ? partido.getEquipoLocal().getEquipo().getNombre()
                         : partido.getEquipoVisitante().getEquipo().getNombre());
                 dto.setPresente(true);
+                dto.setSuspendido(estaSuspendido(jugador.getId(), partido.getFecha()));
                 return dto;
             })
             .toList();
