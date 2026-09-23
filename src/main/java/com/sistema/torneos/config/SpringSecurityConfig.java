@@ -92,8 +92,34 @@ public class SpringSecurityConfig {
                         "/api/usuarios/**")
                 .hasRole("ADMIN")
 
-                // TEMPORAL: permitir todo lo demás
-                .anyRequest().permitAll()
+                // Sanciones/Suspensiones: consulta administrativa por jugador
+                .requestMatchers(HttpMethod.GET,
+                        "/api/sanciones/buscar-jugadores",
+                        "/api/sanciones/buscar-por-jugador-id")
+                .hasAnyRole("ADMIN", "USER")
+
+                // Suspensiones: administradas desde Sanciones/Suspensiones
+                .requestMatchers("/api/suspensiones/**")
+                .hasAnyRole("ADMIN", "USER")
+
+                // Partidos de la Jornada: registro de goles/sanciones del partido
+                .requestMatchers("/api/sanciones/**", "/api/goles/**")
+                .hasAnyRole("ADMIN", "REFEREE")
+
+                // Lectura de catálogos para armar el filtro de Partidos de la Jornada
+                .requestMatchers(HttpMethod.GET,
+                        "/api/torneos/**",
+                        "/api/categoria-torneo/**")
+                .hasAnyRole("ADMIN", "REFEREE")
+
+                // Partidos de la Jornada
+                .requestMatchers(
+                        "/api/partidos/**",
+                        "/api/presencias/**")
+                .hasAnyRole("ADMIN", "REFEREE")
+
+                // Catálogos administrativos: todo lo demás requiere ADMIN
+                .anyRequest().hasRole("ADMIN")
             )
 
             .authenticationProvider(authenticationProvider())
