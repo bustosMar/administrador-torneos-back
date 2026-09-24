@@ -1,7 +1,5 @@
 package com.sistema.torneos.config;
 
-import java.util.Arrays;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +32,9 @@ public class SpringSecurityConfig {
     @Autowired
     private JpaUserDetailsService userDetailsService;
 
+        @Autowired
+        private WebCorsConfig webCorsConfig;
+
     @Bean
     AuthenticationManager authenticationManager() throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
@@ -57,7 +58,7 @@ public class SpringSecurityConfig {
 
         http
             .csrf(csrf -> csrf.disable())
-            .cors(cors -> cors.configurationSource(configurationSource()))
+            .cors(cors -> cors.configurationSource(webCorsConfig))
             .sessionManagement(management ->
                 management.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
@@ -130,25 +131,7 @@ public class SpringSecurityConfig {
 
     @Bean
     CorsConfigurationSource configurationSource() {
-
-        CorsConfiguration config = new CorsConfiguration();
-
-        config.setAllowedOriginPatterns(Arrays.asList("*"));
-
-        config.setAllowedMethods(
-                Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-
-        config.setAllowedHeaders(
-                Arrays.asList("Authorization", "Content-Type"));
-
-        config.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source =
-                new UrlBasedCorsConfigurationSource();
-
-        source.registerCorsConfiguration("/**", config);
-
-        return source;
+        return webCorsConfig;
     }
 
     @Bean

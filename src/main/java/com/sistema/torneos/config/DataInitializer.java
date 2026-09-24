@@ -31,7 +31,7 @@ public class DataInitializer implements CommandLineRunner {
                 .orElseGet(() -> roleRepository.save(new Rol(null, "ROLE_ADMIN")));
         Rol userRole = roleRepository.findByNombre("ROLE_USER")
                 .orElseGet(() -> roleRepository.save(new Rol(null, "ROLE_USER")));
-        roleRepository.findByNombre("ROLE_REFEREE")
+        Rol refereeRole = roleRepository.findByNombre("ROLE_REFEREE")
                 .orElseGet(() -> roleRepository.save(new Rol(null, "ROLE_REFEREE")));
 
         if (usuarioRepository.findByNombreUsuario("admin").isEmpty()) {
@@ -42,6 +42,26 @@ public class DataInitializer implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setRoles(List.of(adminRole, userRole));
             usuarioRepository.save(admin);
+        }
+
+        if (usuarioRepository.findByNombreUsuario("Usuario").isEmpty()) {
+            Usuario usuario = new Usuario();
+            usuario.setNombre("suario");
+            usuario.setApellido("Usuario");
+            usuario.setNombreUsuario("usuario");
+            usuario.setPassword(passwordEncoder.encode("usuario123"));
+            usuario.setRoles(List.of(userRole));
+            usuarioRepository.save(usuario);
+        }
+
+        if (usuarioRepository.findByNombreUsuario("Arbitro").isEmpty()) {
+            Usuario arbitro = new Usuario();
+            arbitro.setNombre("Arbitro");
+            arbitro.setApellido("Arbitro");
+            arbitro.setNombreUsuario("arbitro");
+            arbitro.setPassword(passwordEncoder.encode("arbitro123"));
+            arbitro.setRoles(List.of(refereeRole));
+            usuarioRepository.save(arbitro);
         }
     }
 }
