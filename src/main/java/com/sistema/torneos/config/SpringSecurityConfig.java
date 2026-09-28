@@ -114,7 +114,7 @@ public class SpringSecurityConfig {
                 .hasAnyRole("ADMIN", "REFEREE")
 
                 .requestMatchers(HttpMethod.GET, "/api/presencias/jugador/**")
-                .hasAnyRole("ADMIN", "USER", "REFEREE")
+                .hasAnyRole("ADMIN", "USER")
 
                 // Partidos de la Jornada
                 .requestMatchers(
