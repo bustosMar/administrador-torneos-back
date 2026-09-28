@@ -10,5 +10,7 @@ public interface PresenciaPartidoRepository extends JpaRepository<PresenciaParti
 
 	List<PresenciaPartido> findByPartido_IdOrderByJugador_NombreAscJugador_ApellidoAsc(Long idPartido);
 
+	List<PresenciaPartido> findByJugador_IdOrderByPartido_FechaDescPartido_HoraDesc(Long idJugador);
+
 	Optional<PresenciaPartido> findByPartido_IdAndJugador_Id(Long idPartido, Long idJugador);
 }

@@ -19,6 +19,7 @@ import com.sistema.torneos.app.web.model.response.JugadorPartidoResponse;
 import com.sistema.torneos.app.web.model.response.GuardarPresenciasPartidoResponse;
 import com.sistema.torneos.app.web.model.response.PresenciaPartidoDetalleResponse;
 import com.sistema.torneos.app.web.model.response.RegistroPresenciaHuellaResponse;
+import com.sistema.torneos.app.web.model.response.PartidoPresenciaJugadorResponse;
 
 import java.util.Base64;
 import java.util.ArrayList;
@@ -101,6 +102,24 @@ public class PresenciaPartidoFacade {
     response.setPresenciasRegistradas(mapPresencias(presencias, partido, jugadoresElegibles));
 
     return response;
+    }
+
+    public List<PartidoPresenciaJugadorResponse> getPartidosConPresencia(Long idJugador) {
+        return presenciaPartidoRepository
+                .findByJugador_IdOrderByPartido_FechaDescPartido_HoraDesc(idJugador)
+                .stream()
+                .map(presencia -> {
+                    Partido partido = presencia.getPartido();
+                    return new PartidoPresenciaJugadorResponse(
+                            partido.getId(),
+                            partido.getFecha(),
+                            partido.getHora(),
+                            partido.getJornada().getNumeroJornada(),
+                            partido.getEquipoLocal().getEquipo().getNombre(),
+                            partido.getEquipoVisitante().getEquipo().getNombre(),
+                            presencia.getObservaciones());
+                })
+                .toList();
     }
 
     @Transactional

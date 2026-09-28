@@ -7,6 +7,7 @@ import com.sistema.torneos.app.web.model.request.RegistrarPresenciaHuellaRequest
 import com.sistema.torneos.app.web.model.response.GuardarPresenciasPartidoResponse;
 import com.sistema.torneos.app.web.model.response.PresenciaPartidoDetalleResponse;
 import com.sistema.torneos.app.web.model.response.RegistroPresenciaHuellaResponse;
+import com.sistema.torneos.app.web.model.response.PartidoPresenciaJugadorResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,12 @@ public class PresenciaPartidoController {
     @GetMapping("/{id}")
     public PresenciaPartido getById(@PathVariable("id") Long id) {
         return service.findById(id);
+    }
+
+    @GetMapping("/jugador/{idJugador}")
+    public List<PartidoPresenciaJugadorResponse> getPartidosConPresencia(
+            @PathVariable Long idJugador) {
+        return service.getPartidosConPresencia(idJugador);
     }
 
     @GetMapping("/partido/{idPartido}")

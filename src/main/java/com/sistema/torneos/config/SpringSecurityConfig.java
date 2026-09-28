@@ -113,10 +113,13 @@ public class SpringSecurityConfig {
                         "/api/categoria-torneo/**")
                 .hasAnyRole("ADMIN", "REFEREE")
 
+                .requestMatchers(HttpMethod.GET, "/api/presencias/jugador/**")
+                .hasAnyRole("ADMIN", "USER", "REFEREE")
+
                 // Partidos de la Jornada
                 .requestMatchers(
                         "/api/partidos/**",
-                        "/api/presencias/**")
+                    "/api/presencias/**")
                 .hasAnyRole("ADMIN", "REFEREE")
 
                 // Catálogos administrativos: todo lo demás requiere ADMIN

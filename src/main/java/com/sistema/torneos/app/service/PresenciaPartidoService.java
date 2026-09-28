@@ -7,6 +7,7 @@ import com.sistema.torneos.app.web.model.request.RegistrarPresenciaHuellaRequest
 import com.sistema.torneos.app.web.model.response.GuardarPresenciasPartidoResponse;
 import com.sistema.torneos.app.web.model.response.PresenciaPartidoDetalleResponse;
 import com.sistema.torneos.app.web.model.response.RegistroPresenciaHuellaResponse;
+import com.sistema.torneos.app.web.model.response.PartidoPresenciaJugadorResponse;
 
 import java.util.List;
 
@@ -33,6 +34,10 @@ public class PresenciaPartidoService {
 
     public PresenciaPartidoDetalleResponse getDetalleByPartido(Long idPartido) {
 	return presenciaPartidoFacade.getDetalleByPartido(idPartido);
+    }
+
+    public List<PartidoPresenciaJugadorResponse> getPartidosConPresencia(Long idJugador) {
+        return presenciaPartidoFacade.getPartidosConPresencia(idJugador);
     }
 
     public PresenciaPartido create(PresenciaPartido presenciaPartido) {
